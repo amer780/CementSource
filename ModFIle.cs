@@ -1,6 +1,6 @@
 using System.IO;
 using System.Collections.Generic;
-using UnityEngine;
+using CementTools;
 
 class ModFile
 {
@@ -12,7 +12,15 @@ class ModFile
         _path = path;
         foreach (string line in File.ReadLines(path))
         {
+            if (line == "")
+            {
+                continue;
+            }
             string[] splitLine = line.Split('=');
+            if (splitLine.Length < 2)
+            {
+                throw new System.Exception($"Incorrect format for {Cement.MOD_FILE_EXTENSION} file.");
+            }
             string key = splitLine[0];
             string value = splitLine[1];
             _values[key] = value;
