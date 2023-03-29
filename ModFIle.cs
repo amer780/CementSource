@@ -22,7 +22,15 @@ class ModFile
                 throw new System.Exception($"Incorrect format for {Cement.MOD_FILE_EXTENSION} file.");
             }
             string key = splitLine[0];
-            string value = splitLine[1];
+            string value = "";
+            for (int i = 1; i < splitLine.Length; i++)
+            {
+                value += splitLine[i];
+                if (i + 1 != splitLine.Length)
+                {
+                    value += "=";
+                }
+            }
             _values[key] = value;
         }
     }
