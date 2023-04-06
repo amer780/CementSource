@@ -4,6 +4,7 @@ using BepInEx;
 using System.IO;
 using System.Diagnostics;
 using System.Threading;
+using System.Net;
 using UnityEngine.UI;
 using TMPro;
 using System.Reflection;
@@ -29,6 +30,16 @@ namespace CementTools
             }
         }
 
+        public static bool HasInternet
+        {
+            get
+            {
+                return _hasInternet;
+            }
+        }
+
+        private static bool _hasInternet;
+
         private static Cement _singleton;
 
         int totalFiles = 0;
@@ -41,10 +52,11 @@ namespace CementTools
 
         string modMessageText = "";
 
-        string summaryText = "Note: if a mod failed to process, make sure you have a good internet connection or try restarting your game." +
+        string summaryText = $"{FAILED_TAG}<b>IMPORTANT! PLEASE READ!</b></color>\n\nNote: if a mod failed to process, make sure you have a good internet connection or try restarting your game." +
         " If it still doesn't work, there is a problem with the mod file, which the mod's creator must fix.\n\n" +
         "If you want assistance with trying to get your mods to work, go to <link=\"website\"><u>our website</u></link>, and join the discord server. " +
-        "There is a #modding-questions channel.\n\n";
+        "There is a #modding-questions channel.\n\nAlso everything the Cement Team does is for free. All of us are students or work full time, so we would be really grateful "
+        + "if you bought us a coffee, with the following link: <link=\"coffee\"><u>CLICK ME!</u></link>.\n\n";
 
         Slider progressBar;
         TMP_Text progressText;
@@ -178,7 +190,12 @@ namespace CementTools
             summary = background.Find("Viewport/Content").GetComponent<TMP_Text>();
             Button okButton = background.Find("OK").GetComponent<Button>();
 
-            summary.text = summaryText + "\n" + modMessageText;
+            summary.text = "";
+            if (!HasInternet)
+            {
+                summary.text = $"{FAILED_TAG}<b>NOT CONNECTED TO WIFI</color></b>\n\n";
+            }
+            summary.text += summaryText + "\n" + modMessageText;
 
             okButton.onClick.AddListener(delegate ()
             {
@@ -211,7 +228,7 @@ namespace CementTools
         {
             if (data.succeeded)
             {
-                summaryText += SUCCEEDED_TAG + $"Successfully processed {data.name}.";
+                summaryText += SUCCEEDED_TAG + $"Successfully downloaded all files for {data.name}.\n";
                 CopyCacheToBin(data.directoryName);
             }
             else
@@ -220,7 +237,7 @@ namespace CementTools
                 {
                     data.name = "incorrectly formatted mod";
                 }
-                summaryText += FAILED_TAG + $"Failed to process {data.name}.";
+                summaryText += FAILED_TAG + $"Failed to process {data.name}.\n";
             }
 
             summaryText += "</color>\n";
@@ -247,8 +264,12 @@ namespace CementTools
             Cement.Log($"CREATING HANDLER FOR MOD {pathToMod}");
 
             handler.OnProgress += (float percentage) => OnProgress(pathToMod, percentage);
-            handler.OnRequiresMod += HandleDownloadMod;
             handler.Download(FinishedDownloadingMod);
+        }
+
+        private bool ModsPresent()
+        {
+            return Directory.GetFiles(MODS_FOLDER_PATH, $"*.{MOD_FILE_EXTENSION}").Length > 0;
         }
 
         private void DownloadMods(string directory)
@@ -265,6 +286,90 @@ namespace CementTools
                     HandleDownloadMod(path);
                 });
             }
+        }
+
+        private bool HandleDownloadingModFromLink(string link)
+        {
+            string nameFromLink = LinkHelper.GetNameFromLink(link);
+            string pathToMod = Path.Combine(Cement.HIDDEN_MODS_PATH, nameFromLink);
+
+            bool file1Exists = File.Exists(pathToMod);
+            bool file2Exists = File.Exists(Path.Combine(Cement.MODS_FOLDER_PATH, nameFromLink));
+
+            if (file1Exists || file2Exists) // doesn't need to install the mod file if it already exists
+            {
+                return true;
+            }
+
+            try
+            {
+                WebClient client = new WebClient();
+                client.Proxy = null;
+
+                client.DownloadFile(link, pathToMod);
+            }
+            catch
+            {
+                return false;
+            }
+
+            return DownloadModsFromFile(pathToMod);
+        }
+
+
+        private bool DownloadModsFromFile(string path)
+        {
+            ModFile modFile = new ModFile(path);
+            string rawLinks = modFile.GetValue("Links");
+            if (rawLinks == null)
+            {
+                return false;
+            }
+            string[] links = rawLinks.Split(',');
+            foreach (string link in links)
+            {
+                if (!LinkHelper.IsLinkToMod(link))
+                {
+                    continue;
+                }
+                bool succeeded = HandleDownloadingModFromLink(link);
+                if (!succeeded)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private void DownloadAllModFiles(string directory, Action<bool> callback)
+        {
+            ThreadPool.QueueUserWorkItem(delegate (object data)
+            {
+                foreach (string subDirectory in Directory.GetDirectories(directory))
+                {
+                    DownloadAllModFiles(subDirectory, delegate (bool s)
+                    {
+                        if (!s)
+                        {
+                            callback.Invoke(false);
+                            return;
+                        }
+                    });
+                }
+
+                foreach (string path in Directory.GetFiles(directory, $"*.{MOD_FILE_EXTENSION}"))
+                {
+                    bool succeeded = DownloadModsFromFile(path);
+                    if (!succeeded)
+                    {
+                        callback.Invoke(false);
+                        return;
+                    }
+                }
+
+                callback.Invoke(true);
+            });
         }
 
         private void CopyCacheToBin(string directoryName)
@@ -302,6 +407,7 @@ namespace CementTools
             }
             catch (Exception e)
             {
+                // yowser
             }
         }
 
@@ -328,7 +434,6 @@ namespace CementTools
                         Logger.LogInfo(type.Assembly.FullName);
                         if (typeof(CementMod).IsAssignableFrom(type) || type.IsAssignableFrom(typeof(Cement)))
                         {
-                            Logger.LogInfo(type);
                             try
                             {
                                 CementMod item = Activator.CreateInstance(type) as CementMod;
@@ -363,7 +468,12 @@ namespace CementTools
 
         private string GetCurrentCementVersion()
         {
-            return File.ReadAllText(Path.Combine(CEMENT_PATH, "version"));
+            string path = Path.Combine(CEMENT_PATH, "version");
+            if (!File.Exists(path))
+            {
+                return null;
+            }
+            return File.ReadAllText(path);
         }
 
         private void GetLatestCementVersion(Action<bool, string> callback)
@@ -375,23 +485,61 @@ namespace CementTools
 
         private void UpdateCement()
         {
-            Process.Start(Path.Combine(CEMENT_PATH, "CementInstaller.exe"));
+            string tempPath = Path.Combine(Application.dataPath, "CementInstaller.exe");
+
+            if (!File.Exists(tempPath))
+                File.Copy(Path.Combine(CEMENT_PATH, "CementInstaller.exe"), tempPath);
+
+            Process process = new Process();
+            process.StartInfo.FileName = tempPath;
+            process.StartInfo.Verb = "runas";
+            process.Start();
+        }
+
+        private void DeleteTemp()
+        {
+            string tempPath = Path.Combine(Application.dataPath, "CementInstaller.exe");
+            if (File.Exists(tempPath))
+            {
+                File.Delete(tempPath);
+            }
+        }
+
+        private bool IsConnectedToWifi()
+        {
+            try
+            {
+                using (var client = new WebClient())
+                using (var stream = client.OpenRead("http://www.google.com"))
+                {
+                    return true;
+                }
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         private void Awake()
         {
             _singleton = this;
+            _hasInternet = IsConnectedToWifi();
+            Cement.Log($"IS CONNECTED TO WIFI? {_hasInternet}");
 
             GetLatestCementVersion(delegate (bool succeeded, string latestVersion)
             {
+                Cement.Log($"LATEST CEMENT VERSION: {latestVersion}");
                 if (succeeded)
                 {
-                    if (latestVersion == GetCurrentCementVersion())
+                    if (latestVersion != GetCurrentCementVersion())
                     {
                         UpdateCement();
                         return;
                     }
                 }
+
+                DeleteTemp();
 
                 try
                 {
@@ -401,7 +549,26 @@ namespace CementTools
                 {
                     Logger.LogError($"Error while creating gui: {e}");
                 }
-                DownloadMods(MODS_FOLDER_PATH);
+                if (ModsPresent())
+                {
+                    DownloadAllModFiles(MODS_FOLDER_PATH, delegate (bool succeeded2)
+                    {
+                        Cement.Log($"DONE DOWNLOADING ALL MODS. DID SUCCEED? {succeeded2}");
+                        if (succeeded2)
+                        {
+                            DownloadMods(MODS_FOLDER_PATH);
+                        }
+                        else
+                        {
+                            summaryText += $"\n\n{FAILED_TAG}Failed to download all requireds mods. Try restarting your game, or make sure you have a good internet connection.</color>\n\n";
+                            LoadMods();
+                        }
+                    });
+                }
+                else
+                {
+                    LoadMods();
+                }
             });
         }
 
@@ -457,6 +624,9 @@ namespace CementTools
             {
                 case "website":
                     Application.OpenURL("https://cementgb.github.io");
+                    break;
+                case "coffee":
+                    Application.OpenURL("https://www.buymeacoffee.com/cementgb");
                     break;
             }
         }
