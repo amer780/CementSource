@@ -11,13 +11,31 @@ using System.Reflection;
 using System;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using System.Threading.Tasks;
 
 namespace CementTools
 {
     public class CementMod : MonoBehaviour
     {
         public string modDirectoryPath;
+        public ModFile modFile;
     };
+
+    public static class CementModSingleton
+    {
+        private static Dictionary<string, CementMod> _singletons = new Dictionary<string, CementMod>();
+
+        public static void Add(Type t, CementMod i)
+        {
+            _singletons[t.Name] = i;
+        }
+
+        public static CementMod Get<T>() where T: CementMod
+        {
+            return _singletons[typeof(T).Name];
+        }
+    }
+
 
     [BepInPlugin("org.gangbeastsmodding.cement.blastfurnaceslag", "Cement", "3.0.0")]
     public class Cement : BaseUnityPlugin
@@ -228,8 +246,8 @@ namespace CementTools
         {
             if (data.succeeded)
             {
-                summaryText += SUCCEEDED_TAG + $"Successfully downloaded all files for {data.name}.\n";
-                CopyCacheToBin(data.directoryName);
+                summaryText += SUCCEEDED_TAG + $"Successfully downloaded all files for {data.name}. </color>\n";
+                CopyCacheToBin(data.directoryName, data.pathToMod);
             }
             else
             {
@@ -237,10 +255,9 @@ namespace CementTools
                 {
                     data.name = "incorrectly formatted mod";
                 }
-                summaryText += FAILED_TAG + $"Failed to process {data.name}.\n";
+                summaryText += FAILED_TAG + $"Failed to process {data.name}. </color>\n";
             }
 
-            summaryText += "</color>\n";
             if (data.message != null)
             {
                 modMessageText += $"<b>{data.name} message</b>:\n\n{data.message}\n\n";
@@ -288,7 +305,7 @@ namespace CementTools
             }
         }
 
-        private bool HandleDownloadingModFromLink(string link)
+        private async Task<bool> HandleDownloadingModFromLink(string link)
         {
             string nameFromLink = LinkHelper.GetNameFromLink(link);
             string pathToMod = Path.Combine(Cement.HIDDEN_MODS_PATH, nameFromLink);
@@ -301,23 +318,16 @@ namespace CementTools
                 return true;
             }
 
-            try
-            {
-                WebClient client = new WebClient();
-                client.Proxy = null;
-
-                client.DownloadFile(link, pathToMod);
-            }
-            catch
+            if (!await DownloadHelper.DownloadFile(link, pathToMod, null))
             {
                 return false;
             }
 
-            return DownloadModsFromFile(pathToMod);
+            return await DownloadModsFromFile(pathToMod);
         }
 
 
-        private bool DownloadModsFromFile(string path)
+        private async Task<bool> DownloadModsFromFile(string path)
         {
             ModFile modFile = new ModFile(path);
             string rawLinks = modFile.GetValue("Links");
@@ -332,7 +342,7 @@ namespace CementTools
                 {
                     continue;
                 }
-                bool succeeded = HandleDownloadingModFromLink(link);
+                bool succeeded = await HandleDownloadingModFromLink(link);
                 if (!succeeded)
                 {
                     return false;
@@ -344,7 +354,7 @@ namespace CementTools
 
         private void DownloadAllModFiles(string directory, Action<bool> callback)
         {
-            ThreadPool.QueueUserWorkItem(delegate (object data)
+            ThreadPool.QueueUserWorkItem(async delegate (object data)
             {
                 foreach (string subDirectory in Directory.GetDirectories(directory))
                 {
@@ -360,7 +370,7 @@ namespace CementTools
 
                 foreach (string path in Directory.GetFiles(directory, $"*.{MOD_FILE_EXTENSION}"))
                 {
-                    bool succeeded = DownloadModsFromFile(path);
+                    bool succeeded = await DownloadModsFromFile(path);
                     if (!succeeded)
                     {
                         callback.Invoke(false);
@@ -372,10 +382,10 @@ namespace CementTools
             });
         }
 
-        private void CopyCacheToBin(string directoryName)
+        private void CopyCacheToBin(string directoryName, string pathToMod)
         {
             string cachePath = Path.Combine(CACHE_PATH, directoryName);
-            string binPath = Path.Combine(MODBIN_PATH);
+            string binPath = Path.Combine(MODBIN_PATH, GetFileName(pathToMod).Split('.')[0]);
 
             if (!Directory.Exists(cachePath))
             {
@@ -411,34 +421,64 @@ namespace CementTools
             }
         }
 
-        private void LoadMods()
+        private void LoadAllMods()
         {
             infectedWithAllSTIs = new GameObject("Infected With All STIs");
             DontDestroyOnLoad(infectedWithAllSTIs);
 
-            string[] assemblyPaths = Directory.GetFiles(MODBIN_PATH, "*.dll");
+            foreach (string subDirectory in Directory.GetDirectories(MODBIN_PATH))
+            {
+                Cement.Log($"PROCESSING SUB {subDirectory}");
+                string modName = GetFileName(subDirectory) + ".cmt";
+                Cement.Log($"LOADING MOD WITH NAME {modName}");
+                string filePath = Path.Combine(MODS_FOLDER_PATH, modName);
+                if (!File.Exists(filePath))
+                {
+                    filePath = Path.Combine(HIDDEN_MODS_PATH, modName);
+                }
+                Cement.Log($"FILE PATH TO MOD {filePath}");
+                ModFile modFile = new ModFile(filePath);
+                Cement.Log("CREATED MOD FILE. LOADING DLLS...");
+                LoadMods(subDirectory, modFile);
+                Cement.Log("FINISHED LOADING DLLS");
+            }
+
+            Destroy(cementGUI);
+            CreateSummary();
+        }
+
+        private void LoadMods(string directory, ModFile modFile)
+        {
+            string[] assemblyPaths = Directory.GetFiles(directory, "*.dll");
             foreach (string path in assemblyPaths)
             {
-                Logger.LogInfo(path);
                 try
                 {
                     Assembly assembly = Assembly.LoadFile(path);
                     foreach (AssemblyName referencedAssembly in assembly.GetReferencedAssemblies())
                     {
-                        string assemblyPath = Path.Combine(MODBIN_PATH, referencedAssembly.Name + ".dll");
-                        if (File.Exists(assemblyPath))
-                            Assembly.LoadFile(assemblyPath);
+                        foreach (string sub in Directory.GetDirectories(MODBIN_PATH))
+                        {
+                            string assemblyPath = Path.Combine(sub, referencedAssembly.Name + ".dll");
+                            if (File.Exists(assemblyPath))
+                            {
+                                Assembly.LoadFile(assemblyPath);
+                                break;
+                            }
+                        }
+                        
                     }
                     foreach (Type type in assembly.GetTypes())
                     {
-                        Logger.LogInfo(type.Assembly.FullName);
                         if (typeof(CementMod).IsAssignableFrom(type) || type.IsAssignableFrom(typeof(Cement)))
                         {
                             try
                             {
-                                CementMod item = Activator.CreateInstance(type) as CementMod;
-                                InstantiateMod(item);
-                                Logger.LogInfo($"Succesfully loaded {type.Name}.");
+                                CementMod mod = InstantiateMod(type);
+                                mod.modDirectoryPath = directory;
+                                mod.modFile = modFile;
+                                CementModSingleton.Add(type, mod);
+                                Cement.Log($"Succesfully loaded {type.Name}.");
                             }
                             catch (Exception e)
                             {
@@ -456,14 +496,11 @@ namespace CementTools
                     summaryText += $"Error occurred while loading assembly {GetFileName(path)}.";
                 }
             }
-
-            Destroy(cementGUI);
-            CreateSummary();
         }
 
-        private void InstantiateMod(CementMod mod)
+        private CementMod InstantiateMod(Type mod)
         {
-            infectedWithAllSTIs.AddComponent(mod.GetType());
+            return infectedWithAllSTIs.AddComponent(mod) as CementMod;
         }
 
         private string GetCurrentCementVersion()
@@ -561,13 +598,13 @@ namespace CementTools
                         else
                         {
                             summaryText += $"\n\n{FAILED_TAG}Failed to download all requireds mods. Try restarting your game, or make sure you have a good internet connection.</color>\n\n";
-                            LoadMods();
+                            LoadAllMods();
                         }
                     });
                 }
                 else
                 {
-                    LoadMods();
+                    LoadAllMods();
                 }
             });
         }
@@ -580,6 +617,10 @@ namespace CementTools
                 value += percentage;
             }
             value /= totalMods;
+            if (value > 100f)
+            {
+                value = 100f;
+            }
 
             _currentProgressBarValue = value / 100f;
             progressText.text = $"{Mathf.Round(value * 10) * 0.1f}%";
@@ -587,8 +628,8 @@ namespace CementTools
             if (!loadedMods && totalModsProcessed == totalMods)
             {
                 loadedMods = true;
-                Logger.LogInfo("All links downloaded!");
-                LoadMods();
+                LoadAllMods();
+                Cement.Log("All links downloaded!");
             }
         }
 

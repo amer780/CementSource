@@ -11,6 +11,7 @@ public struct ProcessedModData
     public string name;
     public string directoryName;
     public string message;
+    public string pathToMod;
 }
 
 public class ModDownloadHandler
@@ -45,12 +46,29 @@ public class ModDownloadHandler
         }
     }
 
-    public void Download(Action<ProcessedModData> callback)
+    private string ReadMessage(string message)
+    {
+        if (message == null)
+        {
+            return null;
+        }
+        if (LinkHelper.IsLink(message))
+        {   
+            WebClient client = new WebClient();
+            string downloadedMessage = client.DownloadString(message);
+            client.Dispose();
+            return downloadedMessage;
+        }
+        return message;
+    }
+
+    public async void Download(Action<ProcessedModData> callback)
     {
         ProcessedModData data = new ProcessedModData();
         data.succeeded = false;
 
         ModFile modFile = new ModFile(_pathToMod);
+        data.pathToMod = _pathToMod;
 
         string name = modFile.GetValue("Name");
         string author = modFile.GetValue("Author");
@@ -65,7 +83,7 @@ public class ModDownloadHandler
 
         string currentVersion = modFile.GetValue("CurrentVersion");
         string latestVersion;
-        string modMessage = modFile.GetValue("Message");
+        string modMessage = ReadMessage(modFile.GetValue("Message"));
 
         data.name = name;
         data.message = modMessage;
@@ -99,7 +117,7 @@ public class ModDownloadHandler
             Cement.Log($"DOWNLOADING LINKS FOR MOD {_pathToMod}!");
             if (Cement.HasInternet)
             {
-                bool succeeded = DownloadLinks(modFile.GetValue("Links"), directoryName);
+                bool succeeded = await DownloadLinks(modFile.GetValue("Links"), directoryName);
                 if (succeeded)
                 {
                     Cement.Log($"SUCCEEDED!");
@@ -154,7 +172,7 @@ public class ModDownloadHandler
         OnProgress.Invoke(totalPercentages / _numberOfLinks);
     }
 
-    private bool DownloadLinks(string links, string directoryName)
+    private async Task<bool> DownloadLinks(string links, string directoryName)
     {
         string directoryPath = Path.Combine(Cement.CACHE_PATH, directoryName);
 
@@ -174,7 +192,7 @@ public class ModDownloadHandler
                 continue;
             }
 
-            bool succeeded = DownloadHelper.DownloadFile(link, Path.Combine(directoryPath, LinkHelper.GetNameFromLink(link)),
+            bool succeeded = await DownloadHelper.DownloadFile(link, Path.Combine(directoryPath, LinkHelper.GetNameFromLink(link)),
             delegate (object sender, DownloadProgressChangedEventArgs eventArgs)
             {
                 Cement.Log($"PROGRESS CHANGED: {eventArgs.ProgressPercentage}");

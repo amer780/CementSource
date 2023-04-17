@@ -14,6 +14,15 @@ public static class LinkHelper
         return ToUsableName(split[split.Length - 1]);
     }
 
+    public static bool IsLink(string possibleLink)
+    {
+        if (possibleLink.IndexOf("https://") == 0)
+        {
+            return true;
+        }
+        return false;
+    }
+
     const string BANNED = "/<>:\"\\|?*";
     public static string ToUsableName(string name)
     {

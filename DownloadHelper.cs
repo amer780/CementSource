@@ -1,10 +1,12 @@
 using System.Net;
 using CementTools;
 using System;
+using System.Threading.Tasks;
+using System.Threading;
 
 public static class DownloadHelper
 {
-    public static bool DownloadFile(string link, string path, DownloadProgressChangedEventHandler progressChanged)
+    public static async Task<bool> DownloadFile(string link, string path, DownloadProgressChangedEventHandler progressChanged)
     {
         WebClient client = new WebClient();
 
@@ -13,7 +15,7 @@ public static class DownloadHelper
 
         try
         {
-            client.DownloadFile(link, path);
+            await client.DownloadFileTaskAsync(new Uri(link), path);
         }
         catch
         {
