@@ -56,6 +56,7 @@ public class ModDownloadHandler
         {   
             WebClient client = new WebClient();
             string downloadedMessage = client.DownloadString(message);
+            Cement.Log($"DOWNLOADED MESSAGE {downloadedMessage}");
             client.Dispose();
             return downloadedMessage;
         }
@@ -86,6 +87,7 @@ public class ModDownloadHandler
         string modMessage = ReadMessage(modFile.GetValue("Message"));
 
         data.name = name;
+        Cement.Log($"MESSAGE {modMessage}");
         data.message = modMessage;
 
         string directoryName = $"{LinkHelper.ToUsableName(author)}.{LinkHelper.ToUsableName(name)}";

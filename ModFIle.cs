@@ -84,13 +84,13 @@ public class ModFile
         Dictionary<string, string>.KeyCollection.Enumerator enumerator = _values.Keys.GetEnumerator();
         for (int i = 0; i < _values.Count; i++)
         {
+            enumerator.MoveNext();
             string key = enumerator.Current;
             writer.Write(key + "=" + _values[key]);
 
             if (i != _values.Count - 1)
             {
                 writer.WriteLine();
-                enumerator.MoveNext();
             }
         }
 
