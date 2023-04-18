@@ -30,9 +30,9 @@ namespace CementTools
             _singletons[t.Name] = i;
         }
 
-        public static CementMod Get<T>() where T: CementMod
+        public static T Get<T>() where T: CementMod
         {
-            return _singletons[typeof(T).Name];
+            return _singletons[typeof(T).Name] as T;
         }
     }
 
