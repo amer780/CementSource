@@ -10,7 +10,7 @@ class URLManager
     { "%23", '#' },
     { "%25", '%' },
     { "%7B", '{' },
-    { "%5C", '\\' },
+    { "%5C", '\\'},
     { "%5E", '^' },
     { "%7E", '~' },
     { "%5B", '[' },
@@ -37,7 +37,7 @@ class URLManager
     { "%20", ' ' },
 };
 
-
+    // this function converts the url escape codes to their proper ascii characters
     public static string URLToNormal(string normal)
     {
         foreach (string code in unsupportedUrlEscapeCodes.Keys)

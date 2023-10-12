@@ -14,6 +14,8 @@ public struct ProcessedModData
     public string pathToMod;
 }
 
+// a class which handles installing all the required dependencies for a specific mod
+// each mod file gets its own ModDownloadHandler, managed by the Cement class.
 public class ModDownloadHandler
 {
     private string _pathToMod;
@@ -63,16 +65,38 @@ public class ModDownloadHandler
         return message;
     }
 
+    private string GetUpdatedCementFile(string linkToFile)
+    {
+        WebClient client = new WebClient();
+        string downloadContents = client.DownloadString(linkToFile);
+        client.Dispose();
+        return downloadContents;
+    }
+
+    private void UpdateCementFile(ModFile file)
+    {
+        string link = file.GetString("CementFile");
+        if (link == null)
+        {
+            return;
+        }
+
+        string updatedFile = GetUpdatedCementFile(link);
+        File.WriteAllText(file.path, updatedFile);
+        file.Reload(false);
+    }
+
     public async void Download(Action<ProcessedModData> callback)
     {
         ProcessedModData data = new ProcessedModData();
         data.succeeded = false;
 
-        ModFile modFile = new ModFile(_pathToMod);
+        ModFile modFile = ModFile.Get(_pathToMod);
+        Cement.Log($"FINISHED PROCESSING MOD FILE FOR {_pathToMod}");
         data.pathToMod = _pathToMod;
 
-        string name = modFile.GetValue("Name");
-        string author = modFile.GetValue("Author");
+        string name = modFile.GetString("Name");
+        string author = modFile.GetString("Author");
 
         if (name == null || author == null)
         {
@@ -82,9 +106,9 @@ public class ModDownloadHandler
             return;
         }
 
-        string currentVersion = modFile.GetValue("CurrentVersion");
+        string currentVersion = modFile.GetString("CurrentVersion");
         string latestVersion;
-        string modMessage = ReadMessage(modFile.GetValue("Message"));
+        string modMessage = ReadMessage(modFile.GetString("Message"));
 
         data.name = name;
         Cement.Log($"MESSAGE {modMessage}");
@@ -97,7 +121,7 @@ public class ModDownloadHandler
         Cement.Log($"GETTING LATEST VERSION FOR {_pathToMod}...");
         if (Cement.HasInternet)
         {
-            latestVersion = GetLatestVersion(modFile.GetValue("LatestVersion"));
+            latestVersion = GetLatestVersion(modFile.GetString("LatestVersion"));
         }
         else
         {
@@ -119,13 +143,23 @@ public class ModDownloadHandler
             Cement.Log($"DOWNLOADING LINKS FOR MOD {_pathToMod}!");
             if (Cement.HasInternet)
             {
-                bool succeeded = await DownloadLinks(modFile.GetValue("Links"), directoryName);
+                bool succeeded = await DownloadLinks(modFile.GetString("Links"), directoryName);
                 if (succeeded)
                 {
                     Cement.Log($"SUCCEEDED!");
-                    modFile.SetValue("CurrentVersion", latestVersion);
-                    modFile.UpdateFile();
 
+                    modFile.SetString("CurrentVersion", latestVersion);
+                    try
+                    {
+                        UpdateCementFile(modFile);
+                        modFile.UpdateFile();
+                    }
+                    catch (Exception e)
+                    {
+                        Cement.Log($"FAILED TO UPDATE CEMENT FILE BECAUSE {e}");
+                    }
+
+                    Cement.Log("FINISHED UPDATING CEMENT FILE");
                     data.succeeded = true;
 
                     OnProgress(100f);

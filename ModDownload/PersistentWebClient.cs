@@ -2,6 +2,7 @@ using System.Net;
 using System;
 using System.ComponentModel;
 
+// class that can repeatedly download a file when it fails to download the first time
 public class PersistentWebClient : WebClient
 {
     public event Action<bool> OnPersistentDownloadFileComplete;
