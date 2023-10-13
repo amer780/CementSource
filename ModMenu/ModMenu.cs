@@ -170,7 +170,6 @@ namespace CementTools.ModMenuTools
                     mod.enabled = enabled;
                 }
             }
-
         }
 
         public void Disable()
@@ -184,7 +183,6 @@ namespace CementTools.ModMenuTools
             ToggleRelevantMods();
             Application.Quit();
             Cement.Singleton.RevertEventSystem();
-            
         }
     }
 }

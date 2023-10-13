@@ -66,8 +66,6 @@ namespace CementTools
         GameObject modHolder;
 
         AssetBundle _bundle;
-        GameObject[] _bundleObjects;
-        List<ProcessedModData> _processedMods = new List<ProcessedModData>();
 
         private Dictionary<string, float> _percentages = new Dictionary<string, float>();
         private Dictionary<string, ModFile> _nameToModFile = new Dictionary<string, ModFile>();
@@ -152,7 +150,7 @@ namespace CementTools
 
         private Navigation cementNav;
 
-        // this is where the main processing happens, so look here to see how Cement works
+        // this is where the main processing happens, so look here to see how Cement works.
         private void Awake()
         {
             _singleton = this;
@@ -354,9 +352,19 @@ namespace CementTools
             _bundle.Unload(false);
         }
 
+        public void CloseSummaryMenu()
+        {
+            Cement.Log($"CLICKED OK BUTTON! CURRENT SCENE: {SceneManager.GetActiveScene().name}");
+            // checks if it is the menu, so that you can't click the ok button while the loading screen is active.
+            if (SceneManager.GetActiveScene().name == "Menu")
+            {
+                Destroy(summaryGUI);
+                RevertEventSystem();
+            }
+        }
+
         private void CreateSummary()
         {
-            UseCementEventSystem();
             if (summaryGUI == null)
             {
                 return;
@@ -378,16 +386,8 @@ namespace CementTools
             summary.text += summaryText + "\n" + modMessageText;
 
             Cement.Log("ADDING OK BUTTON CLICK LISTENER!\n");
-            okButton.onClick.AddListener(delegate ()
-            {
-                Cement.Log($"CLICKED OK BUTTON! CURRENT SCENE: {SceneManager.GetActiveScene().name}");
-                // checks if it is the menu, so that you can't click the ok button while the progress bar is active.
-                if (SceneManager.GetActiveScene().name == "Menu")
-                {
-                    RevertEventSystem();
-                    Destroy(summaryGUI);
-                }
-            });
+            UseCementEventSystem();
+            okButton.onClick.AddListener(CloseSummaryMenu);
         }
 
         private string GetFileName(string path)
@@ -791,6 +791,8 @@ namespace CementTools
                 }
                 EventSystem.current = _oldEventSystem;
             }
+
+            summaryGUI.transform.Find("Scroll View").Find("OK").GetComponent<Button>().onClick.Invoke();
         }
 
         private void HandleClickingLinks()
