@@ -51,7 +51,7 @@ public static class DownloadManager
         }
     }
 
-    private static async Task<bool> DownloadModFileToPath(string link, string path)
+    private static async Task<bool> DownloadModFile(string link, string path)
     {
         if (!await DownloadHelper.DownloadFile(link, path, null))
         {
@@ -92,7 +92,7 @@ public static class DownloadManager
             bool succeeded = true;
             if (!file1Exists && !file2Exists)
             {
-                await DownloadModFileToPath(link, pathToMod1);
+                await DownloadModFile(link, pathToMod1);
             }
 
             if (!succeeded)
