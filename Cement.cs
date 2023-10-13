@@ -823,12 +823,35 @@ namespace CementTools
 
         public static void Restart()
         {
+            var startInfo = new ProcessStartInfo()
+            {
+                FileName = "cmd.exe",
+                RedirectStandardInput = true,
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+            };
+            
+            Process terminal = Process.Start(startInfo);
+            
+            terminal.StandardInput.WriteLine("timeout /T 3");
+            string gangBeardPath = Path.Combine(Application.dataPath, "..", "Gang Beasts.exe");
+            terminal.StandardInput.WriteLine($"./{gangBeardPath}");
+            terminal.StandardInput.Flush();
             Application.Quit();
         }
 
         public static void ClearCache()
         {
             DirectoryExtender.DeleteFilesInDirectory(Cement.CACHE_PATH);
+            DirectoryExtender.DeleteFilesInDirectory(Cement.HIDDEN_MODS_PATH);
+            foreach (CementMod mod in CementModSingleton.GetAll())
+            {
+                if (File.Exists(mod.modFile.path))
+                {
+                    mod.modFile.SetString("CurrentVersion", "Null");
+                    mod.modFile.UpdateFile();
+                } 
+            }
             Restart();
         }
     }

@@ -135,17 +135,14 @@ public class ModFile
 
     public void SetString(string key, string value)
     {
-        ModFileValue modFileValue;
         if (_values.ContainsKey(key))
         {
-            modFileValue = new ModFileValue(value, _values[key].attributes);
+            _values[key].value = value;
         }
         else
         {
-            modFileValue = new ModFileValue(value, new string[] {});
+            SetValue(key, new ModFileValue(value, new string[] {}));
         }
-
-        SetValue(key, modFileValue);
     }
 
     public float GetFloat(string key)

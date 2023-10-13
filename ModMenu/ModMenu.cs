@@ -181,7 +181,6 @@ namespace CementTools.ModMenuTools
             }
             
             ToggleRelevantMods();
-            Application.Quit();
             Cement.Singleton.RevertEventSystem();
         }
     }
