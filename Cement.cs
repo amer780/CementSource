@@ -143,13 +143,14 @@ namespace CementTools
         private EventSystem _oldEventSystem;
         private EventSystem _cementEventSystem;
         private bool _usingCementEventSystem;
-
         private Navigation cementNav;
 
         // this is where the main processing happens, so look here to see how Cement works.
         private void Awake()
         {
             _singleton = this;
+            DontDestroyOnLoad(_singleton);
+
             _hasInternet = IsConnectedToWifi();
             Cement.Log($"IS CONNECTED TO WIFI? {_hasInternet}");
             SceneManager.sceneLoaded += OnSceneLoaded;
@@ -166,6 +167,11 @@ namespace CementTools
             LoadCement();
         }
 
+        private void OnDestroy()
+        {
+            Logger.LogError($"GETTING DESTROYED {transform.parent.name}");
+        }
+
         private void LoadCement()
         {
             GetLatestCementVersion(delegate (bool succeeded, string latestVersion)
@@ -180,7 +186,7 @@ namespace CementTools
                     }
                 }
 
-                DeleteTemp();
+                DeleteTempInstaller();
 
                 try
                 {
@@ -257,7 +263,7 @@ namespace CementTools
         {
             if (scene.name == "Menu")
             {
-                Cement.Log("PREPARING TO SPAWN IN CEMENT BUTTON");
+                Cement.Log("Spawned cement button is false");
                 StartCoroutine(WaitUntilTextSectionExists(SpawnInCementButton));
             }
         }
@@ -397,7 +403,6 @@ namespace CementTools
 
             Transform background = summaryGUI.transform.Find("Scroll View");
             summary = background.Find("Viewport/Content").GetComponent<TMP_Text>();
-            Button okButton = background.Find("OK").GetComponent<Button>();
 
             summary.text = "";
             if (!HasInternet)
@@ -406,7 +411,6 @@ namespace CementTools
             }
             summary.text += summaryText + "\n" + modMessageText;
 
-            Cement.Log("ADDING OK BUTTON CLICK LISTENER!\n");
             UseCementEventSystem();
         }
 
@@ -487,7 +491,7 @@ namespace CementTools
             process.Start();
         }
 
-        private void DeleteTemp()
+        private void DeleteTempInstaller()
         {
             string tempPath = Path.Combine(Application.dataPath, "CementInstaller.exe");
             if (File.Exists(tempPath))
@@ -564,10 +568,23 @@ namespace CementTools
                 loadedMods = true;
                 LoadAllMods();
             }
-        }
+        }   
 
+        bool pressedNo = false;
         private void Update()
         {
+            // easter egg for: is this enough cements? obviously no
+            if (Keyboard.current.nKey.isPressed && Keyboard.current.oKey.isPressed && !pressedNo)
+            {
+                pressedNo = true;
+                SpawnInCementButton();
+            }
+
+            if (Keyboard.current.nKey.wasReleasedThisFrame || Keyboard.current.oKey.wasReleasedThisFrame)
+            {
+                pressedNo = false;
+            }
+
             if (Mouse.current.leftButton.wasPressedThisFrame)
             {
                 HandleClickingLinks();
@@ -590,8 +607,6 @@ namespace CementTools
                 }
                 EventSystem.current = _oldEventSystem;
             }
-
-            summaryGUI.transform.Find("Scroll View").Find("OK").GetComponent<Button>().onClick.Invoke();
         }
 
         private void HandleClickingLinks()
