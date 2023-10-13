@@ -214,7 +214,7 @@ public class ModDownloadHandler
 
         if (Directory.Exists(directoryPath))
         {
-            DirectoryExtender.DeleteFilesInDirectory(directoryPath);
+            IOExtender.DeleteFilesInDirectory(directoryPath);
         }
         Directory.CreateDirectory(directoryPath);
 
