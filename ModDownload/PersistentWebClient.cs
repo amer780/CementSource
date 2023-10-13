@@ -43,6 +43,7 @@ public class PersistentWebClient : WebClient
 
     public PersistentWebClient(int maxRetries = 3) : base()
     {
+        _maxRetries = maxRetries;
         Proxy = null;
         DownloadFileCompleted += DownloadCompletedForFile;
         DownloadStringCompleted += DownloadCompletedForString;

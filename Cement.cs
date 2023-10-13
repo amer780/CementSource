@@ -16,7 +16,6 @@ using UnityEngine.SceneManagement;
 using System.Threading.Tasks;
 using CementTools.ModMenuTools;
 using UnityEngine.EventSystems;
-using GB.UI;
 
 namespace CementTools
 {
@@ -329,6 +328,10 @@ namespace CementTools
             _bundle = AssetBundle.LoadFromFile(Path.Combine(Paths.BepInExRootPath, "plugins", "Cement", "cement"));
             cementGUI = Instantiate(_bundle.LoadAsset<GameObject>("CementLoadingScreen"));
             summaryGUI = Instantiate(_bundle.LoadAsset<GameObject>("CementSummaryCanvas"));
+
+            Button okButton = summaryGUI.transform.Find("Scroll View").Find("OK").GetComponent<Button>();
+            okButton.onClick.AddListener(CloseSummaryMenu);
+
             DontDestroyOnLoad(cementGUI);
 
             CreateEventSystem();
@@ -352,14 +355,14 @@ namespace CementTools
             _bundle.Unload(false);
         }
 
-        public void CloseSummaryMenu()
+        public static void CloseSummaryMenu()
         {
             Cement.Log($"CLICKED OK BUTTON! CURRENT SCENE: {SceneManager.GetActiveScene().name}");
             // checks if it is the menu, so that you can't click the ok button while the loading screen is active.
             if (SceneManager.GetActiveScene().name == "Menu")
             {
-                Destroy(summaryGUI);
-                RevertEventSystem();
+                Destroy(Cement.Singleton.summaryGUI);
+                Cement.Singleton.RevertEventSystem();
             }
         }
 
@@ -387,7 +390,6 @@ namespace CementTools
 
             Cement.Log("ADDING OK BUTTON CLICK LISTENER!\n");
             UseCementEventSystem();
-            okButton.onClick.AddListener(CloseSummaryMenu);
         }
 
         private string GetFileName(string path)
@@ -447,7 +449,7 @@ namespace CementTools
             Cement.Log($"CREATING HANDLER FOR MOD {pathToMod}");
 
             handler.OnProgress += (float percentage) => OnProgress(pathToMod, percentage);
-            handler.Download(FinishedDownloadingMod);
+            handler.Download(callback: FinishedDownloadingMod);
         }
 
         private bool ModsPresent()
@@ -528,9 +530,13 @@ namespace CementTools
                 {
                     childFile = ModFile.Get(pathToMod1);
                 }
-                else
+                else if (file2Exists)
                 {
                     childFile = ModFile.Get(pathToMod2);
+                }
+                else
+                {
+                    throw new Exception("this shouldn't happen lol");
                 }
 
                 requiredMods.Add(childFile);
@@ -823,20 +829,17 @@ namespace CementTools
 
         public static void Restart()
         {
+            string gangBeardPath = Path.Combine(Application.dataPath, "..");
+            string arguments = $"/C echo RESTARTING GANG BEASTS && timeout /T 12 /nobreak && cd \"{gangBeardPath}\" && Start-Process \"Gang Beasts.exe\"";
+            
             var startInfo = new ProcessStartInfo()
             {
                 FileName = "cmd.exe",
-                RedirectStandardInput = true,
-                RedirectStandardOutput = true,
-                UseShellExecute = false,
+                UseShellExecute = true,
+                Arguments = arguments
             };
             
-            Process terminal = Process.Start(startInfo);
-            
-            terminal.StandardInput.WriteLine("timeout /T 3");
-            string gangBeardPath = Path.Combine(Application.dataPath, "..", "Gang Beasts.exe");
-            terminal.StandardInput.WriteLine($"./{gangBeardPath}");
-            terminal.StandardInput.Flush();
+            Process.Start(startInfo);
             Application.Quit();
         }
 
