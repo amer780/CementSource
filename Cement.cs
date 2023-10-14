@@ -603,7 +603,7 @@ namespace CementTools
             {
                 if (_oldEventSystem == null)
                 {
-                    _oldEventSystem = GameObject.Find("Global").transform.Find("Input/EventSystem").GetComponent<EventSystem>();
+                    _oldEventSystem = GameObject.Find("Global")?.transform.Find("Input/EventSystem")?.GetComponent<EventSystem>();
                 }
                 EventSystem.current = _oldEventSystem;
             }
