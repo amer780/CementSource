@@ -1,6 +1,6 @@
 # CementSource
 
-This is the source code for the Cement Mod Loader for Gang Beasts. This outlines the structure of this repo. If you want to learn how to use cement go to the documentation [here](https://github.com/HueSamai/CementSource/wiki/)
+This is the source code for the Cement Mod Loader for Gang Beasts. This outlines the structure of this repo. If you want to learn how to use Cement, go to the documentation [here](https://github.com/HueSamai/CementSource/wiki/).
 
 Okay now let me show you around.
 
