@@ -618,8 +618,12 @@ namespace CementTools
             {
                 if (_oldEventSystem == null)
                 {
-                    _oldEventSystem = GameObject.Find("Global")?.transform.Find("Input/EventSystem")?.GetComponent<EventSystem>();
-                    _oldEventSystem = GameObject.Find("Global(Clone)")?.transform.Find("Input/EventSystem")?.GetComponent<EventSystem>();
+                    GameObject global = GameObject.Find("Global(Clone)");
+                    if (global == null)
+                    {
+                        return;
+                    }
+                    _oldEventSystem = global.transform.Find("Input/EventSystem").GetComponent<EventSystem>();
                 }
                 if (_oldEventSystem == null)
                 {
