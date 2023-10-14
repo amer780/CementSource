@@ -150,7 +150,25 @@ namespace CementTools
         {
             _singleton = this;
             DontDestroyOnLoad(_singleton);
+            LoadCement();
+        }
 
+    
+        private void Update()
+        {
+            IsThisEnoughCement();   
+            HandleClickingLinks();
+            DisplayProgressBarChanges();
+            HandleEventSystems();
+        }
+
+        private void OnDestroy()
+        {
+            Logger.LogError($"GETTING DESTROYED {transform.parent.name}");
+        }
+
+        private void LoadCement()
+        {
             _hasInternet = IsConnectedToWifi();
             Cement.Log($"IS CONNECTED TO WIFI? {_hasInternet}");
             SceneManager.sceneLoaded += OnSceneLoaded;
@@ -164,16 +182,6 @@ namespace CementTools
                 // yowser
             }
 
-            LoadCement();
-        }
-
-        private void OnDestroy()
-        {
-            Logger.LogError($"GETTING DESTROYED {transform.parent.name}");
-        }
-
-        private void LoadCement()
-        {
             GetLatestCementVersion(delegate (bool succeeded, string latestVersion)
             {
                 Cement.Log($"LATEST CEMENT VERSION: {latestVersion}");
@@ -570,8 +578,9 @@ namespace CementTools
             }
         }   
 
+        
         bool pressedNo = false;
-        private void Update()
+        private void IsThisEnoughCement()
         {
             // easter egg for: is this enough cements? obviously no
             if (Keyboard.current.nKey.isPressed && Keyboard.current.oKey.isPressed && !pressedNo)
@@ -584,26 +593,37 @@ namespace CementTools
             {
                 pressedNo = false;
             }
+        }
 
-            if (Mouse.current.leftButton.wasPressedThisFrame)
-            {
-                HandleClickingLinks();
-            }
-
+        private void DisplayProgressBarChanges()
+        {
             if (progressBar != null)
             {
                 progressBar.value = Mathf.Lerp(progressBar.value, _currentProgressBarValue, 10f * Time.deltaTime);
             }
+        }
 
+        private void HandleEventSystems()
+        {
             if (_usingCementEventSystem)
             {
+                if (_cementEventSystem == null)
+                {
+                    Cement.Log("CEMENT EVENT SYSTEM IS NULL! PANIC!!!");
+                    return;
+                }
                 EventSystem.current = _cementEventSystem;
             }
             else
             {
                 if (_oldEventSystem == null)
                 {
-                    _oldEventSystem = GameObject.Find("Global").transform.Find("Input/EventSystem").GetComponent<EventSystem>();
+                    _oldEventSystem = GameObject.Find("Global(Clone)").transform.Find("Input/EventSystem").GetComponent<EventSystem>();
+                }
+                if (_oldEventSystem == null)
+                {
+                    Cement.Log("OLD EVENT SYSTEM IS NULL! PANIC!!!");
+                    return;
                 }
                 EventSystem.current = _oldEventSystem;
             }
@@ -612,6 +632,11 @@ namespace CementTools
         private void HandleClickingLinks()
         {
             if (summary == null)
+            {
+                return;
+            }
+
+            if (!Mouse.current.leftButton.wasPressedThisFrame)
             {
                 return;
             }
