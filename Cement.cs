@@ -665,15 +665,35 @@ namespace CementTools
             }
         }
 
-        public static void Restart()
+        public static void RestartThroughHelper()
         {
-            string gangBeardPath = Path.Combine(Application.dataPath, "..");
-            string arguments = $"/C echo RESTARTING GANG BEASTS && timeout /T 12 /nobreak && cd \"{gangBeardPath}\" && Start-Process \"Gang Beasts.exe\"";
+            string cementHelper = Path.Combine(CEMENT_PATH, "CementHelper.exe");
+            if (!File.Exists(cementHelper))
+            {
+                File.Copy(Path.Combine(CEMENT_PATH, "CementInstaller.exe"), cementHelper);
+            }
+            
+            var startInfo = new ProcessStartInfo()
+            {
+                FileName = cementHelper,
+                UseShellExecute = true,
+                Verb = "runas",
+                Arguments = "--no-install"
+            };
+            
+            Process.Start(startInfo);
+        }
+
+        public static void RestartCommand()
+        {
+            string gangBeardPath = Path.Combine(Application.dataPath, "..", "Gang Beasts.exe");
+            string arguments = $"/C echo RESTARTING GANG BEASTS && timeout /T 3 /nobreak && \"{gangBeardPath}\"";
             
             var startInfo = new ProcessStartInfo()
             {
                 FileName = "cmd.exe",
                 UseShellExecute = true,
+                Verb = "runas",
                 Arguments = arguments
             };
             
@@ -693,7 +713,7 @@ namespace CementTools
                     mod.modFile.UpdateFile();
                 } 
             }
-            Restart();
+            RestartThroughHelper();
         }
     }
 }
