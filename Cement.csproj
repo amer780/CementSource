@@ -5,6 +5,9 @@
   	</PropertyGroup>
 
   	<ItemGroup>
+		<Reference Include="0Harmony">
+		  <HintPath>D:\SteamLibrary\steamapps\common\Gang Beasts\BepInEx\core\0Harmony.dll</HintPath>
+		</Reference>
 		<Reference Include="UnityEngine.CoreModule">
 			<HintPath>D:/SteamLibrary/steamapps/common/Gang Beasts/Gang Beasts_Data/Managed/UnityEngine.CoreModule.dll</HintPath>
 		</Reference>

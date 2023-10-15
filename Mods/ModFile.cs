@@ -37,8 +37,9 @@ public class ModFile
         public string key;
         public string value;
     }
-
+    
     public event System.Action ChangedValues;
+    public event System.Action Disabled;
     private Dictionary<string, ModFileValue> _values = new Dictionary<string, ModFileValue>();
     private static Dictionary<string, ModFile> _modFiles = new Dictionary<string, ModFile>();
     private ModFile[] _requiredMods;
@@ -190,6 +191,10 @@ public class ModFile
         if (value)
         {
             SetString(key, "true");
+            if (key == "Disabled")
+            {
+                Disabled?.Invoke();
+            }
         }
         else
         {
