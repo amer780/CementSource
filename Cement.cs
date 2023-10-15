@@ -502,7 +502,7 @@ namespace CementTools
             }
             catch (Exception e)
             {
-                Cement.Log($"FAILED TO UPDATE CEMENT! Please make sure you ran CementInstaller.exe as admin before submitting an issue.\nYou can safely ignore this message if you are building from source.\n{e.Message}\n{e.Source}\n{e.StackTrace}");
+                Cement.Log($"FAILED TO UPDATE CEMENT! Please make sure you ran CementInstaller.exe as admin before submitting an issue.\nYou can safely ignore this message if you are building from source.\n{e}");
             }
         }
 
