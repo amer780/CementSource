@@ -190,7 +190,7 @@ namespace CementTools
                     if (latestVersion != GetCurrentCementVersion())
                     {
                         UpdateCement();
-                        return;
+                        // return; // removed this in order for an outdated Cement version to still work, if the user doesn't want to update
                     }
                 }
 
@@ -216,21 +216,21 @@ namespace CementTools
                         else
                         {
                             summaryText += $"\n\n{FAILED_TAG}Failed to download all requireds mods. Try restarting your game, or make sure you have a good internet connection.</color>\n\n";
-                            Destroy(cementGUI);
                             LoadAllMods();
                         }
+                        if (cementGUI != null) Destroy(cementGUI); // Moved to destroy the loading screen after downloading no matter what
                     });
                 }
                 else
                 {
-                    
+                    if (cementGUI != null) Destroy(cementGUI); // Destroy the GUI if no mods are present
                 }
             });
         }
 
         private void LoadAllMods()
         {
-            Destroy(cementGUI);
+            //Destroy(cementGUI); // Possibly redundant?
             ModLoader.LoadAllMods();
         }
 
@@ -259,7 +259,7 @@ namespace CementTools
             Logger.LogInfo(o);
         }
 
-        public static void Log(params object[] objects)
+        public static void Log(params object[] objects) // TODO: Add log levels, like ERROR, WARNING, etc.
         {
             foreach (object o in objects)
             {
@@ -463,7 +463,7 @@ namespace CementTools
             {
                 IOExtender.DeleteFilesInDirectory(MODBIN_PATH);
             }
-            catch (Exception e)
+            catch
             {
                 // yowser
             }
@@ -496,7 +496,14 @@ namespace CementTools
             Process process = new Process();
             process.StartInfo.FileName = tempPath;
             process.StartInfo.Verb = "runas";
-            process.Start();
+            try
+            {
+                process.Start();
+            }
+            catch (Exception e)
+            {
+                Cement.Log($"FAILED TO UPDATE CEMENT! Please make sure you ran CementInstaller.exe as admin before submitting an issue.\nYou can safely ignore this message if you are building from source.\n{e}");
+            }
         }
 
         private void DeleteTempInstaller()

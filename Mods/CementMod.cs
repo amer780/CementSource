@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace CementTools
@@ -6,5 +7,5 @@ namespace CementTools
     {
         public string modDirectoryPath;
         public ModFile modFile;
-    };
+    }
 }
