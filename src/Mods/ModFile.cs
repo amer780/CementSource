@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.IO;
-using System.Collections.Generic;
 using CementTools;
 
 // helper class which stores information about a certain field in a mod file: the value, and the attributes
