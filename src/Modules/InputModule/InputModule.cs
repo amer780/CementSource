@@ -1,8 +1,8 @@
-using System.Collections.Generic;
-using System;
 using Femur;
-using UnityEngine.InputSystem;
 using GB.Input;
+using System;
+using System.Collections.Generic;
+using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Users;
 
 namespace CementTools.Modules.InputModule

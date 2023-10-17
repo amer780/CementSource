@@ -1,9 +1,8 @@
-using UnityEngine;
-using CementTools;
+using CementTools.ModMenuTools;
 using System;
 using System.IO;
 using System.Reflection;
-using CementTools.ModMenuTools;
+using UnityEngine;
 
 namespace CementTools.ModLoading
 {

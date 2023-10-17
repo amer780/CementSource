@@ -1,6 +1,6 @@
-using System.Net;
 using System;
 using System.ComponentModel;
+using System.Net;
 
 // class that can repeatedly download a file when it fails to download the first time
 public class PersistentWebClient : WebClient
