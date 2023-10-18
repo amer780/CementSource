@@ -267,6 +267,7 @@ namespace CementTools.Modules.SceneModule
             if (customScenes.ContainsKey(name))
             {
                 Debug.Log($"A custom scene with the name '{name}' has already been created.");
+                return;
             }
             customScenes[name] = scene;
         }
