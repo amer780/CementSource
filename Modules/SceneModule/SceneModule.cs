@@ -39,13 +39,7 @@ namespace CementTools.Modules.SceneModule
             return this;
         }
 
-        public CustomScene InvokeOnLoad(Action[] action)
-        {
-            actions.AddRange(action);
-            return this;
-        }
-
-        public CustomScene InvokeOnLoad(List<Action> action)
+        public CustomScene InvokeOnLoad(IEnumerable<Action> action)
         {
             actions.AddRange(action);
             return this;
@@ -57,7 +51,7 @@ namespace CementTools.Modules.SceneModule
             return this;
         }
 
-        public CustomScene AddObjects(GameObject[] gameObjects)
+        public CustomScene AddObjects(IEnumerable<GameObject> gameObjects)
         {
             foreach (GameObject gameObject in gameObjects)
             {
