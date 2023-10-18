@@ -233,7 +233,13 @@ public class ModFile
 
         for (int i = 0; i < lines.Length; i++)
         {   
-            string line = lines[i];
+            string line = lines[i].Trim();
+
+            if (line == "")
+            {
+                continue;
+            }
+
             string key = "";
             string value = "";
             bool addingKey = true;
@@ -300,6 +306,7 @@ public class ModFile
             modFileParameters.Add(parameter);
         }
 
+        Cement.Log("Got params");
         return modFileParameters.ToArray();
     }
 

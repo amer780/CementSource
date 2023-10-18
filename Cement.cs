@@ -208,7 +208,7 @@ namespace CementTools
                 {
                     DownloadManager.DownloadAllModFiles(delegate (bool succeeded2)
                     {
-                        Cement.Log($"DONE DOWNLOADING ALL MODS. DID SUCCEED? {succeeded2}");
+                        Cement.Log($"DONE DOWNLOADING ALL MOD FILES. DID SUCCEED? {succeeded2}");
                         if (succeeded2)
                         {
                             DownloadManager.DownloadMods(MODS_FOLDER_PATH);
@@ -365,6 +365,7 @@ namespace CementTools
             okButton.onClick.AddListener(CloseSummaryMenu);
 
             DontDestroyOnLoad(cementGUI);
+            DontDestroyOnLoad(summaryGUI);
 
             CreateEventSystem();
 
@@ -406,8 +407,6 @@ namespace CementTools
             }
 
             summaryGUI.SetActive(true);
-
-            DontDestroyOnLoad(summaryGUI);
 
             Transform background = summaryGUI.transform.Find("Scroll View");
             summary = background.Find("Viewport/Content").GetComponent<TMP_Text>();
@@ -553,6 +552,12 @@ namespace CementTools
             }
             totalModsProcessed++;
             UpdateProgressBar();
+            
+            if (!loadedMods && totalModsProcessed == totalMods)
+            {
+                loadedMods = true;
+                LoadAllMods();
+            }
         }
 
         public void OnProgress(string mod, float percentage)
@@ -577,12 +582,6 @@ namespace CementTools
 
             _currentProgressBarValue = value / 100f;
             progressText.text = $"{Mathf.Round(value * 10) * 0.1f}%";
-
-            if (!loadedMods && totalModsProcessed == totalMods)
-            {
-                loadedMods = true;
-                LoadAllMods();
-            }
         }   
 
         

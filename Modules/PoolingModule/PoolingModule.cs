@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Random = UnityEngine.Random;
-using CementTools;
 using UnityEngine.SceneManagement;
 
-namespace PoolingModule
+namespace CementTools.Modules.PoolingModule
 {
     // Manager for pooling objects
     public class Pool : CementMod

@@ -14,7 +14,7 @@ using GB.Gamemodes;
 using CementTools;
 using System.Collections;
 
-namespace SceneModule
+namespace CementTools.Modules.SceneModule
 {
     public enum GameMode
     {
@@ -39,13 +39,7 @@ namespace SceneModule
             return this;
         }
 
-        public CustomScene InvokeOnLoad(Action[] action)
-        {
-            actions.AddRange(action);
-            return this;
-        }
-
-        public CustomScene InvokeOnLoad(List<Action> action)
+        public CustomScene InvokeOnLoad(IEnumerable<Action> action)
         {
             actions.AddRange(action);
             return this;
@@ -57,7 +51,7 @@ namespace SceneModule
             return this;
         }
 
-        public CustomScene AddObjects(GameObject[] gameObjects)
+        public CustomScene AddObjects(IEnumerable<GameObject> gameObjects)
         {
             foreach (GameObject gameObject in gameObjects)
             {
@@ -215,7 +209,7 @@ namespace SceneModule
         }
     }
 
-    public class CustomSceneManager : MonoBehaviour
+    public class CustomSceneManager : CementMod
     {
         private static Dictionary<string, CustomScene> customScenes = new Dictionary<string, CustomScene>();
 
@@ -267,6 +261,7 @@ namespace SceneModule
             if (customScenes.ContainsKey(name))
             {
                 Debug.Log($"A custom scene with the name '{name}' has already been created.");
+                return;
             }
             customScenes[name] = scene;
         }
@@ -427,27 +422,6 @@ namespace SceneModule
 
             // Loads custom scene
             customScenes[name].Load();
-        }
-    }
-
-    public class Spawner : CementMod
-    {
-        public void Init()
-        {
-            GameObject manager = GameObject.Find("ModuleManager");
-            if (manager == null)
-            {
-                manager = new GameObject("ModuleManager");
-            }
-            manager.AddComponent<CustomSceneManager>();
-        }
-
-        public void Start()
-        {
-        }
-
-        public void Update()
-        {
         }
     }
 }

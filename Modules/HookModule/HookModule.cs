@@ -42,9 +42,10 @@ namespace CementTools.Modules.HookModule
             HarmonyMethod prefix = hook.isPrefix ? new HarmonyMethod(hook.hook) : null;
             HarmonyMethod postfix = hook.isPrefix ? null : new HarmonyMethod(hook.hook);
             modHarmony.Patch(hook.original, prefix, postfix);
-            hook.callingMod.modFile.Disabled += () =>
+            hook.callingMod.modFile.ChangedValues += () =>
             {
-                RemoveHook(hook);
+                if (hook.callingMod.modFile.GetBool("Disabled"))
+                    RemoveHook(hook);
             };
 
             Cement.Log($"New {(hook.isPrefix ? "PREFIX" : "POSTFIX")} hook on {hook.original.DeclaringType.Name}.{hook.original.Name} to {hook.hook.DeclaringType.Name}.{hook.hook.Name}");
