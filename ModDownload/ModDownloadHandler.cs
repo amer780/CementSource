@@ -228,6 +228,7 @@ public class ModDownloadHandler
                 continue;
             }
 
+            Cement.Log($"DOWNLOAD LINK: {link}");
             bool succeeded = await DownloadHelper.DownloadFile(link, Path.Combine(directoryPath, LinkHelper.GetNameFromLink(link)),
             delegate (object sender, DownloadProgressChangedEventArgs eventArgs)
             {
