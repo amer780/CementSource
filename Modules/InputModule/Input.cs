@@ -1,4 +1,4 @@
-namespace InputModule
+namespace CementTools.Modules.InputModule
 {
     public static class Input
     {

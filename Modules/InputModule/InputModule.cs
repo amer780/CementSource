@@ -1,14 +1,11 @@
 using System.Collections.Generic;
 using System;
-using UnityEngine;
 using Femur;
 using UnityEngine.InputSystem;
-using CementTools;
-using System.Reflection;
 using GB.Input;
 using UnityEngine.InputSystem.Users;
 
-namespace InputModule
+namespace CementTools.Modules.InputModule
 {
     public class CallbackManager
     {

@@ -14,7 +14,7 @@ using GB.Gamemodes;
 using CementTools;
 using System.Collections;
 
-namespace SceneModule
+namespace CementTools.Modules.SceneModule
 {
     public enum GameMode
     {
@@ -215,7 +215,7 @@ namespace SceneModule
         }
     }
 
-    public class CustomSceneManager : MonoBehaviour
+    public class CustomSceneManager : CementMod
     {
         private static Dictionary<string, CustomScene> customScenes = new Dictionary<string, CustomScene>();
 
@@ -427,27 +427,6 @@ namespace SceneModule
 
             // Loads custom scene
             customScenes[name].Load();
-        }
-    }
-
-    public class Spawner : CementMod
-    {
-        public void Init()
-        {
-            GameObject manager = GameObject.Find("ModuleManager");
-            if (manager == null)
-            {
-                manager = new GameObject("ModuleManager");
-            }
-            manager.AddComponent<CustomSceneManager>();
-        }
-
-        public void Start()
-        {
-        }
-
-        public void Update()
-        {
         }
     }
 }
