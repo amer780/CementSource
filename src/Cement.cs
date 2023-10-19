@@ -64,8 +64,8 @@ namespace CementTools
 
         AssetBundle _bundle;
 
-        private Dictionary<string, float> _percentages = new Dictionary<string, float>();
-        private Dictionary<string, ModFile> _nameToModFile = new Dictionary<string, ModFile>();
+        private readonly Dictionary<string, float> _percentages = new Dictionary<string, float>();
+        private readonly Dictionary<string, ModFile> _nameToModFile = new Dictionary<string, ModFile>();
 
         private float _currentProgressBarValue;
 
@@ -178,7 +178,7 @@ namespace CementTools
             {
                 IOExtender.DeleteFilesInDirectory(MODBIN_PATH);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 // yowser
             }
