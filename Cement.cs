@@ -1,7 +1,6 @@
 using System.Collections.Generic;
-using System.Collections;
-using UnityEngine;
-using BepInEx;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Diagnostics;
 using System.Net;
@@ -78,7 +77,7 @@ namespace CementTools
         {
             get
             {
-                string path = Path.Combine(Application.dataPath, "../", "Mods");
+                string path = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "Mods"));
                 if (!Directory.Exists(path))
                     Directory.CreateDirectory(path);
 
@@ -190,7 +189,7 @@ namespace CementTools
                     if (latestVersion != GetCurrentCementVersion())
                     {
                         UpdateCement();
-                        // return; // removed this in order for an outdated Cement version to still work, if the user doesn't want to update
+                        // return; // removed this in order for an outdated Cement version to still work if the user doesn't want to update
                     }
                 }
 
@@ -215,10 +214,9 @@ namespace CementTools
                         }
                         else
                         {
-                            summaryText += $"\n\n{FAILED_TAG}Failed to download all requireds mods. Try restarting your game, or make sure you have a good internet connection.</color>\n\n";
-                            LoadAllMods();
+                            summaryText += $"\n\n{FAILED_TAG}Failed to download all required mods. Try restarting your game, or make sure you have a good internet connection.</color>\n\n";
                         }
-                        if (cementGUI != null) Destroy(cementGUI); // Moved to destroy the loading screen after downloading no matter what
+                        if (cementGUI != null) Destroy(cementGUI); // Destroy the loading screen after downloading no matter what
                     });
                 }
                 else
@@ -230,7 +228,6 @@ namespace CementTools
 
         private void LoadAllMods()
         {
-            //Destroy(cementGUI); // Possibly redundant?
             ModLoader.LoadAllMods();
         }
 
@@ -499,9 +496,9 @@ namespace CementTools
             {
                 process.Start();
             }
-            catch (Exception e)
+            catch (Win32Exception e)
             {
-                Cement.Log($"FAILED TO UPDATE CEMENT! Please make sure you ran CementInstaller.exe as admin before submitting an issue.\nYou can safely ignore this message if you are building from source.\n{e}");
+                Cement.Log($"FAILED TO UPDATE CEMENT! Please make sure you ran CementInstaller.exe as admin.\n{e}");
             }
         }
 
@@ -539,7 +536,7 @@ namespace CementTools
             }
             else
             {
-                if (data.name == null)
+                if (data.name == null || data.name == "")
                 {
                     data.name = "incorrectly formatted mod";
                 }
