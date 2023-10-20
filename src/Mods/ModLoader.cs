@@ -1,4 +1,7 @@
 using CementTools.ModMenuTools;
+using CementTools.Modules.InputModule;
+using CementTools.Modules.PoolingModule;
+using CementTools.Modules.SceneModule;
 using System;
 using System.IO;
 using System.Reflection;
@@ -9,10 +12,20 @@ namespace CementTools.ModLoading
     public static class ModLoader
     {
         public static GameObject modHolder;
+
+        private static void LoadAllModules()
+        {
+            modHolder.AddComponent<InputManager>();
+            modHolder.AddComponent<CustomSceneManager>();
+            modHolder.AddComponent<Pool>();
+        }
+
         public static void LoadAllMods()
         {
             modHolder = new GameObject("Cement Mods");
             GameObject.DontDestroyOnLoad(modHolder);
+
+            LoadAllModules();
 
             foreach (string subDirectory in Directory.GetDirectories(CementTools.Cement.MODBIN_PATH))
             {
