@@ -2,3 +2,5 @@
 
 <size=140%>@dotpy
 <size=140%>@the_ultimatenuke
+<size=140%>><#3479 (Rune)
+<size=140%>@ethanbarron
