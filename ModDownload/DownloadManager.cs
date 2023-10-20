@@ -9,30 +9,37 @@ public static class DownloadManager
 {
     public static void DownloadAllModFiles(Action<bool> callback)
     {
-        ThreadPool.QueueUserWorkItem(async delegate (object data)
+        foreach (string path in Directory.GetFiles(CementTools.Cement.MODS_FOLDER_PATH, $"*.{CementTools.Cement.MOD_FILE_EXTENSION}"))
         {
-            foreach (string path in Directory.GetFiles(Cement.MODS_FOLDER_PATH, $"*.{Cement.MOD_FILE_EXTENSION}"))
-            {
-                bool succeeded = await DownloadModsFromFile(path);
-                if (!succeeded)
-                {
-                    callback.Invoke(false);
-                    return;
-                }
-            }
+            CementTools.Cement.Log($"BREAKPOINT REACHED. PATH: {path}");
 
-            foreach (string path in Directory.GetFiles(Cement.HIDDEN_MODS_PATH, $"*.{Cement.MOD_FILE_EXTENSION}"))
+            Task<bool> _dl = DownloadModsFromFile(path);
+            _dl.Wait();
+            bool succeeded = _dl.Result;
+            if (!succeeded)
             {
-                bool succeeded = await DownloadModsFromFile(path);
-                if (!succeeded)
-                {
-                    callback.Invoke(false);
-                    return;
-                }
+                callback.Invoke(false);
+                return;
             }
+        }
+        CementTools.Cement.Log("FINISHED DOWNLOADING MODS FOLDER, MOVING ONTO HIDDEN MODS");
 
-            callback.Invoke(true);
-        });
+        foreach (string path in Directory.GetFiles(CementTools.Cement.HIDDEN_MODS_PATH, $"*.{CementTools.Cement.MOD_FILE_EXTENSION}"))
+        {
+            CementTools.Cement.Log("BREAKPOINT REACHED");
+
+            Task<bool> _dl = DownloadModsFromFile(path);
+            _dl.Wait();
+            bool succeeded = _dl.Result;
+            if (!succeeded)
+            {
+                callback.Invoke(false);
+                return;
+            }
+        }
+        CementTools.Cement.Log("FINISHED DOWNLOADING HIDDEN MODS FOLDER, INVOKING CALLBACK");
+
+        callback.Invoke(true);
     }
 
     public static void DownloadMods(string directory)
@@ -63,6 +70,8 @@ public static class DownloadManager
 
     private static async Task<bool> DownloadModsFromFile(string path)
     {
+        CementTools.Cement.Log("DOWNLOADING MODS FROM FILE");
+
         ModFile modFile = ModFile.Get(path);
 
         string rawLinks = modFile.GetString("Links");

@@ -21,7 +21,9 @@ public static class ModLoader
 
     public static void LoadAllMods()
     {
+        Cement.Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
         modHolder = new GameObject("Cement Mods");
+        modHolder.hideFlags = HideFlags.HideAndDontSave;
 
         LoadAllModules();
         GameObject.DontDestroyOnLoad(modHolder);

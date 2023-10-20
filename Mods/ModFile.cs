@@ -131,7 +131,7 @@ public class ModFile
         {
             return null;
         }
-        return value.value;
+        return value.value.Trim();
     }
 
     public void SetString(string key, string value)
