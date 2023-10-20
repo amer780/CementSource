@@ -153,6 +153,7 @@ namespace CementTools
             _singleton = this;
             DontDestroyOnLoad(_singleton);
             LoadCement();
+            HarmonyLib.Harmony.CreateAndPatchAll(typeof(Patches.Patch_Credits));
         }
 
 
