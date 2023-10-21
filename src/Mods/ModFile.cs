@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using CementTools;
@@ -100,7 +101,15 @@ public class ModFile
     {
         if (ChangedValues != null)
         {
-            ChangedValues.Invoke();
+            try
+            {
+                 ChangedValues.Invoke();
+            }
+            catch (Exception e)
+            {
+                Cement.Log($"ERROR OCCURRED IN CHANGED VALUES: {e}");
+            }
+           
         }
     }
 
