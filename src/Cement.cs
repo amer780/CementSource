@@ -16,6 +16,7 @@ using System.Collections;
 using UnityEngine.UI;
 using System;
 using CementTools.ModLoading;
+using GB.UI.Menu;
 
 namespace CementTools
 {
@@ -645,6 +646,9 @@ namespace CementTools
                 }
                 EventSystem.current = _oldEventSystem;
             }
+
+            GameObject _splashGo = GameObject.Find("Splash");
+            if (_splashGo != null ) _splashGo.GetComponentInChildren<AnyInputOnClick>().enabled = !_usingCementEventSystem;
         }
 
         private void HandleClickingLinks()

@@ -10,8 +10,6 @@ public static class DownloadManager
     {
         foreach (string path in Directory.GetFiles(CementTools.Cement.MODS_FOLDER_PATH, $"*.{CementTools.Cement.MOD_FILE_EXTENSION}"))
         {
-            CementTools.Cement.Log($"BREAKPOINT REACHED. PATH: {path}");
-
             Task<bool> _dl = DownloadModsFromFile(path);
             _dl.Wait();
             bool succeeded = _dl.Result;
@@ -21,12 +19,9 @@ public static class DownloadManager
                 return;
             }
         }
-        CementTools.Cement.Log("FINISHED DOWNLOADING MODS FOLDER, MOVING ONTO HIDDEN MODS");
 
         foreach (string path in Directory.GetFiles(CementTools.Cement.HIDDEN_MODS_PATH, $"*.{CementTools.Cement.MOD_FILE_EXTENSION}"))
         {
-            CementTools.Cement.Log("BREAKPOINT REACHED");
-
             Task<bool> _dl = DownloadModsFromFile(path);
             _dl.Wait();
             bool succeeded = _dl.Result;
@@ -36,8 +31,6 @@ public static class DownloadManager
                 return;
             }
         }
-        CementTools.Cement.Log("FINISHED DOWNLOADING HIDDEN MODS FOLDER, INVOKING CALLBACK");
-
         callback.Invoke(true);
     }
 
@@ -69,8 +62,6 @@ public static class DownloadManager
 
     private static async Task<bool> DownloadModsFromFile(string path)
     {
-        CementTools.Cement.Log("DOWNLOADING MODS FROM FILE");
-
         ModFile modFile = ModFile.Get(path);
 
         string rawLinks = modFile.GetString("Links");
