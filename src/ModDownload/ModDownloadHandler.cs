@@ -58,10 +58,19 @@ public class ModDownloadHandler
         if (LinkHelper.IsLink(message))
         {   
             WebClient client = new WebClient();
-            string downloadedMessage = client.DownloadString(message);
-            CementTools.Cement.Log($"DOWNLOADED MESSAGE {downloadedMessage}");
-            client.Dispose();
-            return downloadedMessage;
+            try
+            {
+                string downloadedMessage = client.DownloadString(message);
+                CementTools.Cement.Log($"DOWNLOADED MESSAGE {downloadedMessage}");
+                client.Dispose();
+                return downloadedMessage;
+            }
+            catch (Exception e)
+            {
+                client.Dispose();
+                Cement.Log($"INVALID MESSAGE LINK: {e}");
+                return null;
+            }
         }
         return message;
     }
@@ -69,22 +78,36 @@ public class ModDownloadHandler
     private string GetUpdatedCementFile(string linkToFile)
     {
         WebClient client = new WebClient();
-        string downloadContents = client.DownloadString(linkToFile);
-        client.Dispose();
-        return downloadContents;
+        try {
+            string downloadContents = client.DownloadString(linkToFile);
+            client.Dispose();
+            return downloadContents;
+        }
+        catch(Exception e)
+        {
+            Cement.Log($"INVALID CEMENT FILE LINK: {e}");
+            return null;
+        }
     }
 
-    private void UpdateCementFile(ModFile file)
+    private bool UpdateCementFile(ModFile file)
     {
         string link = file.GetString("CementFile");
         if (link == null)
         {
-            return;
+            return true;
         }
 
         string updatedFile = GetUpdatedCementFile(link);
+        if (updatedFile == null)
+        {
+            return false;
+        }
+
         File.WriteAllText(file.path, updatedFile);
         file.Reload(false);
+
+        return true;
     }
 
     public async void Download(Action<ProcessedModData> callback)
@@ -110,6 +133,11 @@ public class ModDownloadHandler
         string currentVersion = modFile.GetString("CurrentVersion");
         string latestVersion;
         string modMessage = ReadMessage(modFile.GetString("Message"));
+
+        if (modMessage == null)
+        {
+            modMessage = "Invalid message link.";
+        }
 
         data.name = name;
         CementTools.Cement.Log($"MESSAGE {modMessage}");
@@ -152,12 +180,17 @@ public class ModDownloadHandler
                     modFile.SetString("CurrentVersion", latestVersion);
                     try
                     {
-                        UpdateCementFile(modFile);
-                        modFile.UpdateFile();
+                        if (!UpdateCementFile(modFile))
+                        {
+                            // if failed
+                            OnProgress(100f);
+                            callback.Invoke(data);
+                            return;
+                        }
                     }
                     catch (Exception e)
                     {
-                            CementTools.Cement.Log($"FAILED TO UPDATE CEMENT FILE BECAUSE {e}");
+                        CementTools.Cement.Log($"FAILED TO UPDATE CEMENT FILE BECAUSE {e}");
                     }
 
                     CementTools.Cement.Log("FINISHED UPDATING CEMENT FILE");
