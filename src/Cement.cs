@@ -641,7 +641,8 @@ namespace CementTools
                     {
                         return;
                     }
-                    _oldEventSystem = global.transform.Find("Input/EventSystem").GetComponent<EventSystem>();
+                    Transform _eventSystemTransform = global.transform.Find("Input/EventSystem");
+                    if (_eventSystemTransform != null) _oldEventSystem = _oldEventSystem.GetComponent<EventSystem>();
                 }
                 if (_oldEventSystem == null)
                 {
