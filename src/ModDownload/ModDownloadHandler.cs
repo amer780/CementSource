@@ -18,10 +18,10 @@ public struct ProcessedModData
 // each mod file gets its own ModDownloadHandler, managed by the Cement class.
 public class ModDownloadHandler
 {
-    private string _pathToMod;
+    private readonly string _pathToMod;
     public event Action<float> OnProgress;
 
-    private Dictionary<string, float> _percentages = new Dictionary<string, float>();
+    private readonly Dictionary<string, float> _percentages = new Dictionary<string, float>();
     private int _numberOfLinks;
 
     public ModDownloadHandler(string pathToMod)

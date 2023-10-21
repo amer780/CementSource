@@ -22,7 +22,7 @@ namespace CementTools.Patches
             }
             catch (UnauthorizedAccessException e)
             {
-                Cement.Log(e);
+                Cement.Log(e, BepInEx.Logging.LogLevel.Error);
             }
         }
     }

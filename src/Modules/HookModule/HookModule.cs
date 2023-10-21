@@ -28,7 +28,7 @@ namespace CementTools.Modules.HookModule
                 this.isPrefix = isPrefix;
             }
         }
-        private static Harmony defaultHarmony;
+        private static readonly Harmony defaultHarmony;
 
         /// <summary>
         /// Create a hook on a method that will toggle on and off with the passed CementMod.
