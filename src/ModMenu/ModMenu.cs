@@ -177,7 +177,14 @@ namespace CementTools.ModMenuTools
             MODMENU.SetActive(false);
             foreach (ModFile modFile in modFiles)
             {
-                UpdateParameters(modFile);
+                try
+                {
+                    UpdateParameters(modFile);
+                }
+                catch(Exception e)
+                {
+                    Cement.Log($"ERROR UPDATING PARAMS: {e}");
+                }
             }
             
             ToggleRelevantMods();
