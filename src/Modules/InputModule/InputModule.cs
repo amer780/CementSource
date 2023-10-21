@@ -76,7 +76,7 @@ namespace CementTools.Modules.InputModule
                 }
             }
 
-            return default(InputUser);
+            return default;
         }
 
         public static InputDevice GetInputDeviceFromActor(Actor actor)

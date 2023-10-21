@@ -16,8 +16,6 @@ using System.Collections;
 using UnityEngine.UI;
 using System;
 using CementTools.ModLoading;
-using GB.UI.Menu;
-using GB.UI;
 
 namespace CementTools
 {
