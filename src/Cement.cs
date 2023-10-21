@@ -210,7 +210,7 @@ namespace CementTools
                 }
                 if (ModsPresent())
                 {
-                    DownloadManager.DownloadAllModFiles(delegate (bool succeeded2)
+                    DownloadManager.DownloadAllModFiles((Action<bool>)delegate (bool succeeded2)
                     {
                         Cement.Log($"DONE DOWNLOADING ALL MOD FILES. DID SUCCEED? {succeeded2}");
                         if (succeeded2)
@@ -260,17 +260,14 @@ namespace CementTools
             _usingCementEventSystem = false;
         }
 
-        public void Log(object o)
+        public void _Log(object o, BepInEx.Logging.LogLevel logLevel=BepInEx.Logging.LogLevel.Info)
         {
-            Logger.LogInfo(o);
+            Logger.Log(logLevel, o);
         }
 
-        public static void Log(params object[] objects) // TODO: Add log levels, like ERROR, WARNING, etc.
+        public static void Log(object o, BepInEx.Logging.LogLevel logLevel=BepInEx.Logging.LogLevel.Info) // TODO: Add log levels, like ERROR, WARNING, etc.
         {
-            foreach (object o in objects)
-            {
-                Singleton.Log(o);
-            }
+            Singleton._Log(o, logLevel);
         }
 
         private void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode)
@@ -396,7 +393,7 @@ namespace CementTools
 
         public static void CloseSummaryMenu()
         {
-            Log($"CLICKED OK BUTTON! CURRENT SCENE: {SceneManager.GetActiveScene().name}");
+            Cement.Log($"CLICKED OK BUTTON! CURRENT SCENE: {SceneManager.GetActiveScene().name}");
             // checks if it is the menu, so that you can't click the ok button while the loading screen is active.
             if (SceneManager.GetActiveScene().name == "Menu")
             {

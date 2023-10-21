@@ -227,7 +227,7 @@ namespace CementTools.Modules.SceneModule
         public static void SetValues()
         {
             // Gets private fields that are used
-            CementTools.Cement.Singleton.Log("SETTING SELECTED CONFIG");
+            Cement.Log("SETTING SELECTED CONFIG");
             selectedConfig =
                     typeof(MenuHandlerGamemodes).GetField("selectedConfig", BindingFlags.NonPublic | BindingFlags.Instance);
             FieldInfo subTitleInfo =
@@ -332,15 +332,15 @@ namespace CementTools.Modules.SceneModule
             try
             {
                 SetValues();
-                CementTools.Cement.Singleton.Log($"Handler {handler}");
-                CementTools.Cement.Singleton.Log($"Rotation config {rotationConfig}");
-                CementTools.Cement.Singleton.Log($"Selected config {selectedConfig}");
+                Cement.Log($"Handler {handler}");
+                Cement.Log($"Rotation config {rotationConfig}");
+                Cement.Log($"Selected config {selectedConfig}");
                 selectedConfig.SetValue(handler, rotationConfig.GetRotationConfig());
                 handler.OnCountdownComplete();
             }
             catch(Exception e)
             {
-                CementTools.Cement.Singleton.Log(e);
+                Cement.Log(e);
             }
         }
 

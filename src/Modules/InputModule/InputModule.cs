@@ -186,7 +186,7 @@ namespace CementTools.Modules.InputModule
 
                         if (control.IsPressed())
                         {
-                            CementTools.Cement.Log(control);
+                            CementTools.Cement._Log(control);
 
                             if (!wasPressedLastFrame(hashCode))
                             {

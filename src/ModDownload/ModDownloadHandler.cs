@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
-using System;
 using CementTools;
 
 public struct ProcessedModData
@@ -61,7 +60,7 @@ public class ModDownloadHandler
             try
             {
                 string downloadedMessage = client.DownloadString(message);
-                CementTools.Cement.Log($"DOWNLOADED MESSAGE {downloadedMessage}");
+                Cement.Log($"DOWNLOADED MESSAGE {downloadedMessage}");
                 client.Dispose();
                 return downloadedMessage;
             }
@@ -116,7 +115,7 @@ public class ModDownloadHandler
         data.succeeded = false;
 
         ModFile modFile = ModFile.Get(_pathToMod);
-        CementTools.Cement.Log($"FINISHED PROCESSING MOD FILE FOR {_pathToMod}");
+        Cement.Log($"FINISHED PROCESSING MOD FILE FOR {_pathToMod}");
         data.pathToMod = _pathToMod;
 
         string name = modFile.GetString("Name");
@@ -140,14 +139,14 @@ public class ModDownloadHandler
         }
 
         data.name = name;
-        CementTools.Cement.Log($"MESSAGE {modMessage}");
+        Cement.Log($"MESSAGE {modMessage}");
         data.message = modMessage;
 
         string directoryName = $"{LinkHelper.ToUsableName(author)}.{LinkHelper.ToUsableName(name)}";
         data.directoryName = directoryName;
 
 
-        CementTools.Cement.Log($"GETTING LATEST VERSION FOR {_pathToMod}...");
+        Cement.Log($"GETTING LATEST VERSION FOR {_pathToMod}...");
         if (CementTools.Cement.HasInternet)
         {
             latestVersion = GetLatestVersion(modFile.GetString("LatestVersion"));
@@ -159,23 +158,23 @@ public class ModDownloadHandler
 
         if (latestVersion == null)
         {
-            CementTools.Cement.Log("FAILED!");
+            Cement.Log("FAILED!");
             OnProgress(100f);
             callback.Invoke(data);
             return;
         }
         latestVersion = latestVersion.Replace("\n", "");
-        CementTools.Cement.Log($"SUCCEEDED {latestVersion}!");
+        Cement.Log($"SUCCEEDED {latestVersion}!");
 
         if (latestVersion != currentVersion)
         {
-            CementTools.Cement.Log($"DOWNLOADING LINKS FOR MOD {_pathToMod}!");
+            Cement.Log($"DOWNLOADING LINKS FOR MOD {_pathToMod}!");
             if (CementTools.Cement.HasInternet)
             {
                 bool succeeded = await DownloadLinks(modFile.GetString("Links"), directoryName);
                 if (succeeded)
                 {
-                    CementTools.Cement.Log($"SUCCEEDED!");
+                    Cement.Log($"SUCCEEDED!");
 
                     modFile.SetString("CurrentVersion", latestVersion);
                     try
@@ -190,10 +189,10 @@ public class ModDownloadHandler
                     }
                     catch (Exception e)
                     {
-                        CementTools.Cement.Log($"FAILED TO UPDATE CEMENT FILE BECAUSE {e}");
+                        Cement.Log($"FAILED TO UPDATE CEMENT FILE BECAUSE {e}");
                     }
 
-                    CementTools.Cement.Log("FINISHED UPDATING CEMENT FILE");
+                    Cement.Log("FINISHED UPDATING CEMENT FILE");
                     data.succeeded = true;
 
                     OnProgress(100f);
@@ -201,7 +200,7 @@ public class ModDownloadHandler
                 }
                 else
                 {
-                    CementTools.Cement.Log($"FAILED!");
+                    Cement.Log($"FAILED!");
                     OnProgress(100f);
                     callback.Invoke(data);
                 }
@@ -264,9 +263,9 @@ public class ModDownloadHandler
 
             Cement.Log($"DOWNLOAD LINK: {link}");
             bool succeeded = await DownloadHelper.DownloadFile(link, Path.Combine(directoryPath, LinkHelper.GetNameFromLink(link)),
-            delegate (object sender, DownloadProgressChangedEventArgs eventArgs)
+            (DownloadProgressChangedEventHandler)delegate (object sender, DownloadProgressChangedEventArgs eventArgs)
             {
-                CementTools.Cement.Log($"PROGRESS CHANGED: {eventArgs.ProgressPercentage}");
+                Cement.Log($"PROGRESS CHANGED: {eventArgs.ProgressPercentage}");
                 ProgressChanged(link, eventArgs.ProgressPercentage);
             });
 
