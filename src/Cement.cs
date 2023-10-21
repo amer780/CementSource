@@ -649,7 +649,7 @@ namespace CementTools
                         return;
                     }
                     Transform _eventSystemTransform = global.transform.Find("Input/EventSystem");
-                    if (_eventSystemTransform != null) _oldEventSystem = _oldEventSystem.GetComponent<EventSystem>();
+                    if (_eventSystemTransform != null) _oldEventSystem = _eventSystemTransform.GetComponent<EventSystem>();
                 }
                 if (_oldEventSystem == null)
                 {
@@ -660,7 +660,7 @@ namespace CementTools
             }
 
             GameObject _splashGo = GameObject.Find("Splash");
-            if (_splashGo != null) _splashGo.GetComponentInChildren<AnyInputOnClick>().enabled = !_usingCementEventSystem;
+            if (_splashGo != null) _splashGo.GetComponentInChildren<AnyInputOnClick>(true).enabled = !_usingCementEventSystem;
         }
 
         private void HandleClickingLinks()
