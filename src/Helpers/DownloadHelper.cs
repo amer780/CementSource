@@ -7,8 +7,6 @@ public static class DownloadHelper
     public static async Task<bool> DownloadFile(string link, string path, DownloadProgressChangedEventHandler progressChanged)
     {
         WebClient client = new WebClient();
-
-        client.Proxy = null;
         client.DownloadProgressChanged += progressChanged;
 
         try

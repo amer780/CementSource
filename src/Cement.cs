@@ -240,7 +240,7 @@ namespace CementTools
             {
                 Destroy(cementGUI);
             }
-            ModLoader.LoadAllMods();
+            ModLoader.Setup();
         }
 
         public ModFile GetModFileFromName(string name)
@@ -263,14 +263,14 @@ namespace CementTools
             _usingCementEventSystem = false;
         }
 
-        public void _Log(object o, BepInEx.Logging.LogLevel logLevel=BepInEx.Logging.LogLevel.Info)
+        private void InternalLog(object o, BepInEx.Logging.LogLevel logLevel=BepInEx.Logging.LogLevel.Info)
         {
             Logger.Log(logLevel, o);
         }
 
         public static void Log(object o, BepInEx.Logging.LogLevel logLevel=BepInEx.Logging.LogLevel.Info) // TODO: Add log levels, like ERROR, WARNING, etc.
         {
-            Singleton._Log(o, logLevel);
+            Singleton.InternalLog(o, logLevel);
         }
 
         private void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode)

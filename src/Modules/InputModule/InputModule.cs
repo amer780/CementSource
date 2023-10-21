@@ -19,10 +19,10 @@ namespace CementTools.Modules.InputModule
             inputsToCheck = inputs;
         }
 
-        private string inputToCheck;
-        private string[] inputsToCheck;
+        private readonly string inputToCheck;
+        private readonly string[] inputsToCheck;
 
-        private List<Action<Actor>> callbacks = new List<Action<Actor>>();
+        private readonly List<Action<Actor>> callbacks = new List<Action<Actor>>();
 
         public void bind(Action<Actor> callback)
         {
@@ -48,13 +48,12 @@ namespace CementTools.Modules.InputModule
 
     public class InputManager : CementMod
     {
-        private static Dictionary<string, CallbackManager> onKey = new Dictionary<string, CallbackManager>();
-        private static Dictionary<string, CallbackManager> onKeyHeld = new Dictionary<string, CallbackManager>();
-        private static Dictionary<string[], CallbackManager> onKeys = new Dictionary<string[], CallbackManager>();
-        private static Dictionary<string[], CallbackManager> onKeysHeld = new Dictionary<string[], CallbackManager>();
-
-        List<string> pressedLastFrame1 = new List<string>();
-        List<string> pressedLastFrame2 = new List<string>();
+        private static readonly Dictionary<string, CallbackManager> onKey = new Dictionary<string, CallbackManager>();
+        private static readonly Dictionary<string, CallbackManager> onKeyHeld = new Dictionary<string, CallbackManager>();
+        private static readonly Dictionary<string[], CallbackManager> onKeys = new Dictionary<string[], CallbackManager>();
+        private static readonly Dictionary<string[], CallbackManager> onKeysHeld = new Dictionary<string[], CallbackManager>();
+        readonly List<string> pressedLastFrame1 = new List<string>();
+        readonly List<string> pressedLastFrame2 = new List<string>();
 
         bool i = true;
 
