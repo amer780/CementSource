@@ -17,7 +17,7 @@ public static class DownloadHelper
         }
         catch
         {
-            CementTools.Cement._Log($"FAILED TO DOWNLOAD FILE");
+            CementTools.Cement.Log($"FAILED TO DOWNLOAD FILE");
             return false;
         }
 
