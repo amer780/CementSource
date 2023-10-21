@@ -224,519 +224,518 @@ namespace CementTools
                         }
                     });
                 }
-            }
                 else
+                {
+                    if (cementGUI != null) Destroy(cementGUI); // Destroy the GUI if no mods are present
+                }
+            });
+        }
+
+        private void LoadAllMods()
+        {
+            if (cementGUI != null)
             {
-                if (cementGUI != null) Destroy(cementGUI); // Destroy the GUI if no mods are present
+                Destroy(cementGUI);
             }
-        });
+            ModLoader.LoadAllMods();
         }
 
-    private void LoadAllMods()
-    {
-        if (cementGUI != null)
+        public ModFile GetModFileFromName(string name)
         {
-            Destroy(cementGUI);
-        }
-        ModLoader.LoadAllMods();
-    }
-
-    public ModFile GetModFileFromName(string name)
-    {
-        return _nameToModFile[name];
-    }
-
-    public void AddToSummary(string text)
-    {
-        summaryText += text;
-    }
-
-    public void UseCementEventSystem()
-    {
-        _usingCementEventSystem = true;
-    }
-
-    public void RevertEventSystem()
-    {
-        _usingCementEventSystem = false;
-    }
-
-    public void Log(object o)
-    {
-        Logger.LogInfo(o);
-    }
-
-    public static void Log(params object[] objects) // TODO: Add log levels, like ERROR, WARNING, etc.
-    {
-        foreach (object o in objects)
-        {
-            Singleton.Log(o);
-        }
-    }
-
-    private void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode)
-    {
-        if (scene.name == "Menu")
-        {
-            Cement.Log("Spawned cement button is false");
-            StartCoroutine(WaitUntilTextSectionExists(SpawnInCementButton));
-        }
-    }
-
-    private IEnumerator WaitUntilTextSectionExists(Action callback)
-    {
-        Cement.Log("Waiting for TextSection...");
-        yield return new WaitUntil(() => GameObject.Find("TextSection") != null);
-        GameObject g = GameObject.Find("TextSection");
-        Cement.Log("Waiting for Local...");
-        yield return new WaitUntil(() => GameObject.Find("TextSection").transform.Find("Local") != null);
-        Cement.Log("Found Local!");
-        callback.Invoke();
-    }
-
-    private void SpawnInCementButton()
-    {
-        Cement.Log("SPAWNING IN CEMENT BUTTON");
-        Transform textSection = GameObject.Find("TextSection").transform;
-        if (textSection == null)
-        {
-            Cement.Log("TEXT SELECTION IS NULL");
-        }
-        Cement.Log("TEXT SECTION IS NOT NULL");
-
-        textSection.localPosition += new Vector3(0, 10f, 0);
-
-        GameObject localButton = textSection.Find("Local").gameObject;
-        GameObject creditsButton = textSection.Find("Credits").gameObject;
-        GameObject quitButton = textSection.Find("Quit").gameObject;
-
-        Cement.Log("LOCAL BUTTON!");
-        GameObject cementButton = Instantiate(localButton, textSection);
-
-        cementButton.name = "Cement";
-        cementButton.GetComponent<TMP_Text>().text = "Cement";
-        cementButton.transform.SetSiblingIndex(textSection.childCount - 4);
-
-        Button button = cementButton.GetComponent<Button>();
-
-        FieldInfo onClickForButton = typeof(Button).GetField("m_OnClick", BindingFlags.Instance | BindingFlags.NonPublic);
-        Button.ButtonClickedEvent onClickedEvent = new Button.ButtonClickedEvent();
-        onClickForButton.SetValue(button, onClickedEvent);
-
-        button.onClick.AddListener(ModMenu.Singleton.Enable);
-
-        // fix navigation
-        cementNav = cementButton.GetComponent<Button>().navigation;
-        Cement.Log("GOT CEMENT NAV");
-        Navigation creditsNav = creditsButton.GetComponent<Button>().navigation;
-        Cement.Log("GOT CREDITS NAV");
-        Navigation quitNav = quitButton.GetComponent<Button>().navigation;
-        Cement.Log("GOT QUIT NAV");
-
-        creditsNav.selectOnDown = button;
-        quitNav.selectOnUp = button;
-        cementNav.selectOnUp = creditsButton.GetComponent<Button>();
-        cementNav.selectOnDown = quitButton.GetComponent<Button>();
-
-        Cement.Log("CHANGED NAVIGATION!");
-    }
-
-    private void CreateEventSystem()
-    {
-        try
-        {
-            GameObject mainObject = Instantiate(_bundle.LoadAsset<GameObject>("EventSystem"));
-            _cementEventSystem = mainObject.GetComponent<EventSystem>();
-            InputSystemUIInputModule inputModule = mainObject.GetComponent<InputSystemUIInputModule>();
-
-            FieldInfo currentModule = typeof(EventSystem).GetField("m_CurrentInputModule", BindingFlags.NonPublic | BindingFlags.Instance);
-            currentModule.SetValue(_cementEventSystem, inputModule);
-
-            _cementEventSystem.enabled = true;
-
-            DontDestroyOnLoad(mainObject);
-        }
-        catch (Exception e)
-        {
-            Cement.Log($"ERROR WHILE CREATING EVENT SYSTEM: {e}");
-        }
-    }
-
-    private void CreateGUI()
-    {
-        _bundle = AssetBundle.LoadFromFile(Path.Combine(Paths.BepInExRootPath, "plugins", "Cement", "cement"));
-        cementGUI = Instantiate(_bundle.LoadAsset<GameObject>("CementLoadingScreen"));
-        summaryGUI = Instantiate(_bundle.LoadAsset<GameObject>("CementSummaryCanvas"));
-
-        Button okButton = summaryGUI.transform.Find("Scroll View").Find("OK").GetComponent<Button>();
-        okButton.onClick.AddListener(CloseSummaryMenu);
-
-        DontDestroyOnLoad(cementGUI);
-        DontDestroyOnLoad(summaryGUI);
-
-        CreateEventSystem();
-
-        Transform parent = cementGUI.transform.Find("Background").Find("LoadingBar");
-        progressBar = parent.GetComponent<Slider>();
-        progressText = parent.Find("Fill Area").GetComponentInChildren<TMP_Text>();
-
-        progressText.text = "0%";
-        progressBar.value = 0f;
-
-        try
-        {
-            new ModMenu(_bundle);
-        }
-        catch (Exception e)
-        {
-            Cement.Log($"EXCEPTION OCCURRED WHILE CREATING MOD MENU {e}");
+            return _nameToModFile[name];
         }
 
-        _bundle.Unload(false);
-    }
-
-    public static void CloseSummaryMenu()
-    {
-        Log($"CLICKED OK BUTTON! CURRENT SCENE: {SceneManager.GetActiveScene().name}");
-        // checks if it is the menu, so that you can't click the ok button while the loading screen is active.
-        if (SceneManager.GetActiveScene().name == "Menu")
+        public void AddToSummary(string text)
         {
-            Destroy(Singleton.summaryGUI);
-            Singleton.RevertEventSystem();
-        }
-    }
-
-    public void CreateSummary()
-    {
-        if (summaryGUI == null)
-        {
-            return;
+            summaryText += text;
         }
 
-        summaryGUI.SetActive(true);
-
-        Transform background = summaryGUI.transform.Find("Scroll View");
-        summary = background.Find("Viewport/Content").GetComponent<TMP_Text>();
-
-        summary.text = "";
-        if (!HasInternet)
+        public void UseCementEventSystem()
         {
-            summary.text = $"{FAILED_TAG}<b>NOT CONNECTED TO WIFI</color></b>\n\n";
-        }
-        summary.text += summaryText + "\n" + modMessageText;
-
-        UseCementEventSystem();
-    }
-
-    private bool ModsPresent()
-    {
-        return Directory.GetFiles(MODS_FOLDER_PATH, $"*.{MOD_FILE_EXTENSION}").Length > 0;
-    }
-
-
-    private void CopyCacheToBin(string directoryName, string pathToMod)
-    {
-        string cachePath = Path.Combine(CACHE_PATH, directoryName);
-        string binPath = Path.Combine(MODBIN_PATH, IOExtender.GetFileName(pathToMod).Split('.')[0]);
-
-        _nameToModFile[binPath] = ModFile.Get(pathToMod);
-
-        if (!Directory.Exists(cachePath))
-        {
-            return;
+            _usingCementEventSystem = true;
         }
 
-        if (!Directory.Exists(binPath))
+        public void RevertEventSystem()
         {
-            Directory.CreateDirectory(binPath);
+            _usingCementEventSystem = false;
         }
 
-        foreach (string path in Directory.GetFiles(cachePath))
+        public void Log(object o)
         {
-            string name = IOExtender.GetFileName(path);
-            string binFilePath = Path.Combine(binPath, name);
-
-            if (File.Exists(binFilePath))
-                File.Delete(binFilePath);
-
-            File.Copy(Path.Combine(cachePath, name), binFilePath);
+            Logger.LogInfo(o);
         }
-    }
 
-    private void OnApplicationQuit()
-    {
-        try
+        public static void Log(params object[] objects) // TODO: Add log levels, like ERROR, WARNING, etc.
         {
-            IOExtender.DeleteFilesInDirectory(MODBIN_PATH);
-        }
-        catch
-        {
-            // yowser
-        }
-    }
-
-    private string GetCurrentCementVersion()
-    {
-        string path = Path.Combine(CEMENT_PATH, "version");
-        if (!File.Exists(path))
-        {
-            return null;
-        }
-        return File.ReadAllText(path);
-    }
-
-    private void GetLatestCementVersion(Action<bool, string> callback)
-    {
-        PersistentWebClient client = new PersistentWebClient();
-        client.OnPersistentDownloadStringComplete += callback;
-        client.DownloadStringPersistent(CEMENT_VERSION_URL);
-    }
-
-    private void UpdateCement()
-    {
-        string tempPath = Path.Combine(Application.dataPath, "CementInstaller.exe");
-
-        if (!File.Exists(tempPath))
-            File.Copy(Path.Combine(CEMENT_PATH, "CementInstaller.exe"), tempPath);
-
-        Process process = new Process();
-        process.StartInfo.FileName = tempPath;
-        process.StartInfo.Verb = "runas";
-        try
-        {
-            process.Start();
-        }
-        catch (Win32Exception e)
-        {
-            Cement.Log($"FAILED TO UPDATE CEMENT! Please make sure you ran CementInstaller.exe as admin.\n{e}");
-        }
-    }
-
-    private void DeleteTempInstaller()
-    {
-        string tempPath = Path.Combine(Application.dataPath, "CementInstaller.exe");
-        if (File.Exists(tempPath))
-        {
-            File.Delete(tempPath);
-        }
-    }
-
-    private bool IsConnectedToWifi()
-    {
-        try
-        {
-            using (var client = new WebClient())
-            using (var stream = client.OpenRead("http://www.google.com"))
+            foreach (object o in objects)
             {
-                return true;
+                Singleton.Log(o);
             }
         }
-        catch
-        {
-            return false;
-        }
-    }
 
-    public void FinishedDownloadingMod(ProcessedModData data)
-    {
-        if (data.succeeded)
+        private void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode)
         {
-            summaryText += SUCCEEDED_TAG + $"Successfully downloaded all files for {data.name}. </color>\n";
-            CopyCacheToBin(data.directoryName, data.pathToMod);
-        }
-        else
-        {
-            if (data.name == null || data.name == "")
+            if (scene.name == "Menu")
             {
-                data.name = "incorrectly formatted mod";
+                Cement.Log("Spawned cement button is false");
+                StartCoroutine(WaitUntilTextSectionExists(SpawnInCementButton));
             }
-            summaryText += FAILED_TAG + $"Failed to process {data.name}. </color>\n";
         }
 
-        if (data.message != null)
+        private IEnumerator WaitUntilTextSectionExists(Action callback)
         {
-            modMessageText += $"<b>{data.name} message</b>:\n\n{data.message}\n\n";
-        }
-        totalModsProcessed++;
-        UpdateProgressBar();
-
-        if (!loadedMods && totalModsProcessed == totalMods)
-        {
-            loadedMods = true;
-
-            LoadAllMods();
-        }
-    }
-
-    public void OnProgress(string mod, float percentage)
-    {
-        Cement.Log($"MOD {mod} IS {percentage}% DONE");
-        _percentages[mod] = percentage;
-        UpdateProgressBar();
-    }
-
-    public void UpdateProgressBar()
-    {
-        float value = 0f;
-        foreach (float percentage in _percentages.Values)
-        {
-            value += percentage;
-        }
-        value /= totalMods;
-        if (value > 100f)
-        {
-            value = 100f;
+            Cement.Log("Waiting for TextSection...");
+            yield return new WaitUntil(() => GameObject.Find("TextSection") != null);
+            GameObject g = GameObject.Find("TextSection");
+            Cement.Log("Waiting for Local...");
+            yield return new WaitUntil(() => GameObject.Find("TextSection").transform.Find("Local") != null);
+            Cement.Log("Found Local!");
+            callback.Invoke();
         }
 
-        _currentProgressBarValue = value / 100f;
-        progressText.text = $"{Mathf.Round(value * 10) * 0.1f}%";
-
-        if (!loadedMods && totalModsProcessed == totalMods)
+        private void SpawnInCementButton()
         {
-            loadedMods = true;
-            LoadAllMods();
-        }
-    }
-
-
-    bool pressedNo = false;
-    private void IsThisEnoughCement()
-    {
-        // easter egg for: is this enough cements? obviously no
-        if (Keyboard.current.nKey.isPressed && Keyboard.current.oKey.isPressed && !pressedNo)
-        {
-            pressedNo = true;
-            SpawnInCementButton();
-        }
-
-        if (Keyboard.current.nKey.wasReleasedThisFrame || Keyboard.current.oKey.wasReleasedThisFrame)
-        {
-            pressedNo = false;
-        }
-    }
-
-    private void DisplayProgressBarChanges()
-    {
-        if (progressBar != null)
-        {
-            progressBar.value = Mathf.Lerp(progressBar.value, _currentProgressBarValue, 10f * Time.deltaTime);
-        }
-    }
-
-    private void HandleEventSystems()
-    {
-        if (_usingCementEventSystem)
-        {
-            if (_cementEventSystem == null)
+            Cement.Log("SPAWNING IN CEMENT BUTTON");
+            Transform textSection = GameObject.Find("TextSection").transform;
+            if (textSection == null)
             {
-                Cement.Log("CEMENT EVENT SYSTEM IS NULL! PANIC!!!");
+                Cement.Log("TEXT SELECTION IS NULL");
+            }
+            Cement.Log("TEXT SECTION IS NOT NULL");
+
+            textSection.localPosition += new Vector3(0, 10f, 0);
+
+            GameObject localButton = textSection.Find("Local").gameObject;
+            GameObject creditsButton = textSection.Find("Credits").gameObject;
+            GameObject quitButton = textSection.Find("Quit").gameObject;
+
+            Cement.Log("LOCAL BUTTON!");
+            GameObject cementButton = Instantiate(localButton, textSection);
+
+            cementButton.name = "Cement";
+            cementButton.GetComponent<TMP_Text>().text = "Cement";
+            cementButton.transform.SetSiblingIndex(textSection.childCount - 4);
+
+            Button button = cementButton.GetComponent<Button>();
+
+            FieldInfo onClickForButton = typeof(Button).GetField("m_OnClick", BindingFlags.Instance | BindingFlags.NonPublic);
+            Button.ButtonClickedEvent onClickedEvent = new Button.ButtonClickedEvent();
+            onClickForButton.SetValue(button, onClickedEvent);
+
+            button.onClick.AddListener(ModMenu.Singleton.Enable);
+
+            // fix navigation
+            cementNav = cementButton.GetComponent<Button>().navigation;
+            Cement.Log("GOT CEMENT NAV");
+            Navigation creditsNav = creditsButton.GetComponent<Button>().navigation;
+            Cement.Log("GOT CREDITS NAV");
+            Navigation quitNav = quitButton.GetComponent<Button>().navigation;
+            Cement.Log("GOT QUIT NAV");
+
+            creditsNav.selectOnDown = button;
+            quitNav.selectOnUp = button;
+            cementNav.selectOnUp = creditsButton.GetComponent<Button>();
+            cementNav.selectOnDown = quitButton.GetComponent<Button>();
+
+            Cement.Log("CHANGED NAVIGATION!");
+        }
+
+        private void CreateEventSystem()
+        {
+            try
+            {
+                GameObject mainObject = Instantiate(_bundle.LoadAsset<GameObject>("EventSystem"));
+                _cementEventSystem = mainObject.GetComponent<EventSystem>();
+                InputSystemUIInputModule inputModule = mainObject.GetComponent<InputSystemUIInputModule>();
+
+                FieldInfo currentModule = typeof(EventSystem).GetField("m_CurrentInputModule", BindingFlags.NonPublic | BindingFlags.Instance);
+                currentModule.SetValue(_cementEventSystem, inputModule);
+
+                _cementEventSystem.enabled = true;
+
+                DontDestroyOnLoad(mainObject);
+            }
+            catch (Exception e)
+            {
+                Cement.Log($"ERROR WHILE CREATING EVENT SYSTEM: {e}");
+            }
+        }
+
+        private void CreateGUI()
+        {
+            _bundle = AssetBundle.LoadFromFile(Path.Combine(Paths.BepInExRootPath, "plugins", "Cement", "cement"));
+            cementGUI = Instantiate(_bundle.LoadAsset<GameObject>("CementLoadingScreen"));
+            summaryGUI = Instantiate(_bundle.LoadAsset<GameObject>("CementSummaryCanvas"));
+
+            Button okButton = summaryGUI.transform.Find("Scroll View").Find("OK").GetComponent<Button>();
+            okButton.onClick.AddListener(CloseSummaryMenu);
+
+            DontDestroyOnLoad(cementGUI);
+            DontDestroyOnLoad(summaryGUI);
+
+            CreateEventSystem();
+
+            Transform parent = cementGUI.transform.Find("Background").Find("LoadingBar");
+            progressBar = parent.GetComponent<Slider>();
+            progressText = parent.Find("Fill Area").GetComponentInChildren<TMP_Text>();
+
+            progressText.text = "0%";
+            progressBar.value = 0f;
+
+            try
+            {
+                new ModMenu(_bundle);
+            }
+            catch (Exception e)
+            {
+                Cement.Log($"EXCEPTION OCCURRED WHILE CREATING MOD MENU {e}");
+            }
+
+            _bundle.Unload(false);
+        }
+
+        public static void CloseSummaryMenu()
+        {
+            Log($"CLICKED OK BUTTON! CURRENT SCENE: {SceneManager.GetActiveScene().name}");
+            // checks if it is the menu, so that you can't click the ok button while the loading screen is active.
+            if (SceneManager.GetActiveScene().name == "Menu")
+            {
+                Destroy(Singleton.summaryGUI);
+                Singleton.RevertEventSystem();
+            }
+        }
+
+        public void CreateSummary()
+        {
+            if (summaryGUI == null)
+            {
                 return;
             }
-            EventSystem.current = _cementEventSystem;
-        }
-        else
-        {
-            if (_oldEventSystem == null)
+
+            summaryGUI.SetActive(true);
+
+            Transform background = summaryGUI.transform.Find("Scroll View");
+            summary = background.Find("Viewport/Content").GetComponent<TMP_Text>();
+
+            summary.text = "";
+            if (!HasInternet)
             {
-                GameObject global = GameObject.Find("Global(Clone)");
-                if (global == null)
+                summary.text = $"{FAILED_TAG}<b>NOT CONNECTED TO WIFI</color></b>\n\n";
+            }
+            summary.text += summaryText + "\n" + modMessageText;
+
+            UseCementEventSystem();
+        }
+
+        private bool ModsPresent()
+        {
+            return Directory.GetFiles(MODS_FOLDER_PATH, $"*.{MOD_FILE_EXTENSION}").Length > 0;
+        }
+
+
+        private void CopyCacheToBin(string directoryName, string pathToMod)
+        {
+            string cachePath = Path.Combine(CACHE_PATH, directoryName);
+            string binPath = Path.Combine(MODBIN_PATH, IOExtender.GetFileName(pathToMod).Split('.')[0]);
+
+            _nameToModFile[binPath] = ModFile.Get(pathToMod);
+
+            if (!Directory.Exists(cachePath))
+            {
+                return;
+            }
+
+            if (!Directory.Exists(binPath))
+            {
+                Directory.CreateDirectory(binPath);
+            }
+
+            foreach (string path in Directory.GetFiles(cachePath))
+            {
+                string name = IOExtender.GetFileName(path);
+                string binFilePath = Path.Combine(binPath, name);
+
+                if (File.Exists(binFilePath))
+                    File.Delete(binFilePath);
+
+                File.Copy(Path.Combine(cachePath, name), binFilePath);
+            }
+        }
+
+        private void OnApplicationQuit()
+        {
+            try
+            {
+                IOExtender.DeleteFilesInDirectory(MODBIN_PATH);
+            }
+            catch
+            {
+                // yowser
+            }
+        }
+
+        private string GetCurrentCementVersion()
+        {
+            string path = Path.Combine(CEMENT_PATH, "version");
+            if (!File.Exists(path))
+            {
+                return null;
+            }
+            return File.ReadAllText(path);
+        }
+
+        private void GetLatestCementVersion(Action<bool, string> callback)
+        {
+            PersistentWebClient client = new PersistentWebClient();
+            client.OnPersistentDownloadStringComplete += callback;
+            client.DownloadStringPersistent(CEMENT_VERSION_URL);
+        }
+
+        private void UpdateCement()
+        {
+            string tempPath = Path.Combine(Application.dataPath, "CementInstaller.exe");
+
+            if (!File.Exists(tempPath))
+                File.Copy(Path.Combine(CEMENT_PATH, "CementInstaller.exe"), tempPath);
+
+            Process process = new Process();
+            process.StartInfo.FileName = tempPath;
+            process.StartInfo.Verb = "runas";
+            try
+            {
+                process.Start();
+            }
+            catch (Win32Exception e)
+            {
+                Cement.Log($"FAILED TO UPDATE CEMENT! Please make sure you ran CementInstaller.exe as admin.\n{e}");
+            }
+        }
+
+        private void DeleteTempInstaller()
+        {
+            string tempPath = Path.Combine(Application.dataPath, "CementInstaller.exe");
+            if (File.Exists(tempPath))
+            {
+                File.Delete(tempPath);
+            }
+        }
+
+        private bool IsConnectedToWifi()
+        {
+            try
+            {
+                using (var client = new WebClient())
+                using (var stream = client.OpenRead("http://www.google.com"))
                 {
+                    return true;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public void FinishedDownloadingMod(ProcessedModData data)
+        {
+            if (data.succeeded)
+            {
+                summaryText += SUCCEEDED_TAG + $"Successfully downloaded all files for {data.name}. </color>\n";
+                CopyCacheToBin(data.directoryName, data.pathToMod);
+            }
+            else
+            {
+                if (data.name == null || data.name == "")
+                {
+                    data.name = "incorrectly formatted mod";
+                }
+                summaryText += FAILED_TAG + $"Failed to process {data.name}. </color>\n";
+            }
+
+            if (data.message != null)
+            {
+                modMessageText += $"<b>{data.name} message</b>:\n\n{data.message}\n\n";
+            }
+            totalModsProcessed++;
+            UpdateProgressBar();
+
+            if (!loadedMods && totalModsProcessed == totalMods)
+            {
+                loadedMods = true;
+
+                LoadAllMods();
+            }
+        }
+
+        public void OnProgress(string mod, float percentage)
+        {
+            Cement.Log($"MOD {mod} IS {percentage}% DONE");
+            _percentages[mod] = percentage;
+            UpdateProgressBar();
+        }
+
+        public void UpdateProgressBar()
+        {
+            float value = 0f;
+            foreach (float percentage in _percentages.Values)
+            {
+                value += percentage;
+            }
+            value /= totalMods;
+            if (value > 100f)
+            {
+                value = 100f;
+            }
+
+            _currentProgressBarValue = value / 100f;
+            progressText.text = $"{Mathf.Round(value * 10) * 0.1f}%";
+
+            if (!loadedMods && totalModsProcessed == totalMods)
+            {
+                loadedMods = true;
+                LoadAllMods();
+            }
+        }
+
+
+        bool pressedNo = false;
+        private void IsThisEnoughCement()
+        {
+            // easter egg for: is this enough cements? obviously no
+            if (Keyboard.current.nKey.isPressed && Keyboard.current.oKey.isPressed && !pressedNo)
+            {
+                pressedNo = true;
+                SpawnInCementButton();
+            }
+
+            if (Keyboard.current.nKey.wasReleasedThisFrame || Keyboard.current.oKey.wasReleasedThisFrame)
+            {
+                pressedNo = false;
+            }
+        }
+
+        private void DisplayProgressBarChanges()
+        {
+            if (progressBar != null)
+            {
+                progressBar.value = Mathf.Lerp(progressBar.value, _currentProgressBarValue, 10f * Time.deltaTime);
+            }
+        }
+
+        private void HandleEventSystems()
+        {
+            if (_usingCementEventSystem)
+            {
+                if (_cementEventSystem == null)
+                {
+                    Cement.Log("CEMENT EVENT SYSTEM IS NULL! PANIC!!!");
                     return;
                 }
-                _oldEventSystem = global.transform.Find("Input/EventSystem").GetComponent<EventSystem>();
+                EventSystem.current = _cementEventSystem;
             }
-            if (_oldEventSystem == null)
+            else
             {
-                Cement.Log("OLD EVENT SYSTEM IS NULL! PANIC!!!");
+                if (_oldEventSystem == null)
+                {
+                    GameObject global = GameObject.Find("Global(Clone)");
+                    if (global == null)
+                    {
+                        return;
+                    }
+                    _oldEventSystem = global.transform.Find("Input/EventSystem").GetComponent<EventSystem>();
+                }
+                if (_oldEventSystem == null)
+                {
+                    Cement.Log("OLD EVENT SYSTEM IS NULL! PANIC!!!");
+                    return;
+                }
+                EventSystem.current = _oldEventSystem;
+            }
+
+            GameObject _splashGo = GameObject.Find("Splash");
+            if (_splashGo != null) _splashGo.GetComponentInChildren<AnyInputOnClick>().enabled = !_usingCementEventSystem;
+        }
+
+        private void HandleClickingLinks()
+        {
+            if (summary == null)
+            {
                 return;
             }
-            EventSystem.current = _oldEventSystem;
-        }
 
-        GameObject _splashGo = GameObject.Find("Splash");
-        if (_splashGo != null) _splashGo.GetComponentInChildren<AnyInputOnClick>().enabled = !_usingCementEventSystem;
-    }
-
-    private void HandleClickingLinks()
-    {
-        if (summary == null)
-        {
-            return;
-        }
-
-        if (!Mouse.current.leftButton.wasPressedThisFrame)
-        {
-            return;
-        }
-
-        int linkIndex = TMP_TextUtilities.FindIntersectingLink(summary, Mouse.current.position.ReadValue(), Camera.current);
-        if (linkIndex == -1)
-        {
-            return;
-        }
-
-        string linkId = summary.textInfo.linkInfo[linkIndex].GetLinkID();
-
-        switch (linkId)
-        {
-            case "website":
-                Application.OpenURL("https://cementgb.github.io");
-                break;
-            case "coffee":
-                Application.OpenURL("https://www.buymeacoffee.com/cementgb");
-                break;
-        }
-    }
-
-    public static void RestartThroughHelper()
-    {
-        string cementHelper = Path.Combine(CEMENT_PATH, "CementHelper.exe");
-        if (!File.Exists(cementHelper))
-        {
-            File.Copy(Path.Combine(CEMENT_PATH, "CementInstaller.exe"), cementHelper);
-        }
-
-        var startInfo = new ProcessStartInfo()
-        {
-            FileName = cementHelper,
-            UseShellExecute = true,
-            Verb = "runas",
-            Arguments = "--no-install"
-        };
-
-        Process.Start(startInfo);
-    }
-
-    public static void RestartCommand()
-    {
-        string gangBeardPath = Path.Combine(Application.dataPath, "..", "Gang Beasts.exe");
-        string arguments = $"/C echo RESTARTING GANG BEASTS && timeout /T 3 /nobreak && \"{gangBeardPath}\"";
-
-        var startInfo = new ProcessStartInfo()
-        {
-            FileName = "cmd.exe",
-            UseShellExecute = true,
-            Verb = "runas",
-            Arguments = arguments
-        };
-
-        Process.Start(startInfo);
-        Application.Quit();
-    }
-
-    public static void ClearCache()
-    {
-        IOExtender.DeleteFilesInDirectory(CACHE_PATH);
-        IOExtender.DeleteFilesInDirectory(HIDDEN_MODS_PATH);
-        foreach (CementMod mod in CementModSingleton.GetAll())
-        {
-            if (File.Exists(mod.modFile.path))
+            if (!Mouse.current.leftButton.wasPressedThisFrame)
             {
-                mod.modFile.SetString("CurrentVersion", "Null");
-                mod.modFile.UpdateFile();
+                return;
+            }
+
+            int linkIndex = TMP_TextUtilities.FindIntersectingLink(summary, Mouse.current.position.ReadValue(), Camera.current);
+            if (linkIndex == -1)
+            {
+                return;
+            }
+
+            string linkId = summary.textInfo.linkInfo[linkIndex].GetLinkID();
+
+            switch (linkId)
+            {
+                case "website":
+                    Application.OpenURL("https://cementgb.github.io");
+                    break;
+                case "coffee":
+                    Application.OpenURL("https://www.buymeacoffee.com/cementgb");
+                    break;
             }
         }
-        RestartThroughHelper();
+
+        public static void RestartThroughHelper()
+        {
+            string cementHelper = Path.Combine(CEMENT_PATH, "CementHelper.exe");
+            if (!File.Exists(cementHelper))
+            {
+                File.Copy(Path.Combine(CEMENT_PATH, "CementInstaller.exe"), cementHelper);
+            }
+
+            var startInfo = new ProcessStartInfo()
+            {
+                FileName = cementHelper,
+                UseShellExecute = true,
+                Verb = "runas",
+                Arguments = "--no-install"
+            };
+
+            Process.Start(startInfo);
+        }
+
+        public static void RestartCommand()
+        {
+            string gangBeardPath = Path.Combine(Application.dataPath, "..", "Gang Beasts.exe");
+            string arguments = $"/C echo RESTARTING GANG BEASTS && timeout /T 3 /nobreak && \"{gangBeardPath}\"";
+
+            var startInfo = new ProcessStartInfo()
+            {
+                FileName = "cmd.exe",
+                UseShellExecute = true,
+                Verb = "runas",
+                Arguments = arguments
+            };
+
+            Process.Start(startInfo);
+            Application.Quit();
+        }
+
+        public static void ClearCache()
+        {
+            IOExtender.DeleteFilesInDirectory(CACHE_PATH);
+            IOExtender.DeleteFilesInDirectory(HIDDEN_MODS_PATH);
+            foreach (CementMod mod in CementModSingleton.GetAll())
+            {
+                if (File.Exists(mod.modFile.path))
+                {
+                    mod.modFile.SetString("CurrentVersion", "Null");
+                    mod.modFile.UpdateFile();
+                }
+            }
+            RestartThroughHelper();
+        }
     }
-}
 }
