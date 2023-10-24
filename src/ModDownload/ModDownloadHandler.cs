@@ -193,6 +193,7 @@ public class ModDownloadHandler
                     
                     Cement.Log("FINISHED UPDATING CEMENT FILE");
                     modFile.SetString("CurrentVersion", latestVersion);
+                    modFile.UpdateFile();
 
                     data.succeeded = true;
 
