@@ -227,6 +227,10 @@ namespace CementTools
                 else
                 {
                     if (cementGUI != null) Destroy(cementGUI); // Destroy the GUI if no mods are present
+                    CementTools.Cement.Singleton.CreateSummary();
+                    CementTools.Cement.Log("SETTING UP MOD MENU");
+                    ModMenu.Singleton.SetupModMenu();
+                    CementTools.Cement.Log("DONE SETTING UP MOD MENU");
                 }
             });
         }
