@@ -17,6 +17,7 @@ using UnityEngine.UI;
 using System;
 using CementTools.ModLoading;
 using GB.UI.Menu;
+using GB.UI;
 
 namespace CementTools
 {
@@ -296,26 +297,34 @@ namespace CementTools
 
         private void SpawnInCementButton()
         {
-            Cement.Log("SPAWNING IN CEMENT BUTTON");
+            Cement.Log("Spawning in Cement button");
             Transform textSection = GameObject.Find("TextSection").transform;
             if (textSection == null)
             {
-                Cement.Log("TEXT SELECTION IS NULL");
+                Cement.Log("TextSection is null. Backing out");
+                return;
             }
-            Cement.Log("TEXT SECTION IS NOT NULL");
 
             textSection.localPosition += new Vector3(0, 10f, 0);
 
-            GameObject localButton = textSection.Find("Local").gameObject;
-            GameObject creditsButton = textSection.Find("Credits").gameObject;
-            GameObject quitButton = textSection.Find("Quit").gameObject;
+            Button localButton = textSection.Find("Local").GetComponent<Button>();
+            Button creditsButton = textSection.Find("Credits").GetComponent<Button>();
+            Button settingsButton = textSection.Find("Settings").GetComponent<Button>();
+            Button costumesButton = textSection.Find("Costumes").GetComponent<Button>();
 
-            Cement.Log("LOCAL BUTTON!");
-            GameObject cementButton = Instantiate(localButton, textSection);
+            Cement.Log("Just past getting the buttons");
+
+            Navigation creditsButtonNav = new Navigation();
+            Navigation settingsButtonNav = new Navigation();
+            Navigation cementButtonNav = new Navigation();
+
+            Cement.Log("Cement button being created");
+            GameObject cementButton = Instantiate(localButton.gameObject, textSection);
 
             cementButton.name = "Cement";
             cementButton.GetComponent<TMP_Text>().text = "Cement";
             cementButton.transform.SetSiblingIndex(textSection.childCount - 4);
+            Cement.Log("Adjusting text and sibling index");
 
             Button button = cementButton.GetComponent<Button>();
 
@@ -325,20 +334,18 @@ namespace CementTools
 
             button.onClick.AddListener(ModMenu.Singleton.Enable);
 
-            // fix navigation
-            cementNav = cementButton.GetComponent<Button>().navigation;
-            Cement.Log("GOT CEMENT NAV");
-            Navigation creditsNav = creditsButton.GetComponent<Button>().navigation;
-            Cement.Log("GOT CREDITS NAV");
-            Navigation quitNav = quitButton.GetComponent<Button>().navigation;
-            Cement.Log("GOT QUIT NAV");
+            cementButtonNav.selectOnUp = settingsButton;
+            cementButtonNav.selectOnDown = creditsButton;
+            creditsButtonNav.selectOnDown = creditsButton;
+            creditsButtonNav.selectOnUp = button;
+            settingsButtonNav.selectOnDown = button;
+            settingsButtonNav.selectOnUp = costumesButton;
 
-            creditsNav.selectOnDown = button;
-            quitNav.selectOnUp = button;
-            cementNav.selectOnUp = creditsButton.GetComponent<Button>();
-            cementNav.selectOnDown = quitButton.GetComponent<Button>();
+            settingsButton.navigation = settingsButtonNav;
+            creditsButton.navigation = creditsButtonNav;
+            button.navigation = cementButtonNav;
 
-            Cement.Log("CHANGED NAVIGATION!");
+            Cement.Log("Finished creating Cement button!");
         }
 
         private void CreateEventSystem()
