@@ -28,10 +28,6 @@ namespace CementTools.Modules.NotificationModule
         [SerializeField] private TMP_Text title;
         [SerializeField] private TMP_Text content;
 
-        // exception messages
-        private const string timerBarOrCloseButtonNullMessage = "Notification does not have a timerBar or a closeButton! Notification will not display correctly!";
-        private const string titleOrContentNullMessage = "Notification title or content is unassigned! Notification will not display correct text!";
-
         public enum ContentType
         {
             Title,

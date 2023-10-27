@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 namespace CementTools.Modules.NotificationModule
 {
+    // The main accessor for Notifications. Simply use NotificationModule.Send(...) to create one.
     public class NotificationModule : CementMod
     {
         private static List<NotificationInfo> notificationsQueue = new List<NotificationInfo>();
@@ -18,9 +19,7 @@ namespace CementTools.Modules.NotificationModule
             get
             {
                 if (_notificationGO is null)
-                {
                     _notificationGO = _bundle.LoadAsset<GameObject>("Notification");
-                }
                 return _notificationGO;
             }
             private set
@@ -53,9 +52,7 @@ namespace CementTools.Modules.NotificationModule
             get
             {
                 if (_containerTransform is null)
-                {
                     _containerTransform = NotificationCanvas.GetComponentInChildren<VerticalLayoutGroup>().transform;
-                }
                 return _containerTransform;
             }
             private set
@@ -68,13 +65,9 @@ namespace CementTools.Modules.NotificationModule
         private void Update()
         {
             if (notificationsQueue.Count > 0)
-            {
                 Cement.Singleton.UseCementEventSystem();
-            }
             else
-            {
                 Cement.Singleton.RevertEventSystem();
-            }
             
             foreach (var notification in notificationsQueue.ToArray())
             {
@@ -109,9 +102,7 @@ namespace CementTools.Modules.NotificationModule
             Notification.OnNotificationClosed += (notify, wasForced) =>
             {
                 if (notify == notif)
-                {
                     activeNotifications.Remove(notif);
-                }
             };
             return notif;
         }
