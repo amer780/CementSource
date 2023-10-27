@@ -614,7 +614,6 @@ namespace CementTools
             {
                 pressedNo = true;
                 SpawnInCementButton();
-                NotificationModule.Send("Is this enough Cement?", "no");
             }
 
             if (Keyboard.current.nKey.wasReleasedThisFrame || Keyboard.current.oKey.wasReleasedThisFrame)

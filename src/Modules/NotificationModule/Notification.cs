@@ -76,7 +76,7 @@ namespace CementTools.Modules.NotificationModule
             if (timerBar == null) return;
             if (curTime > 0f) curTime -= Time.deltaTime; else
                 CloseNotification(false);
-            if (timerBar.value != curTime / time) timerBar.value = curTime / time
+            if (timerBar.value != curTime / time) timerBar.value = curTime / time;
         }
 
         private void UpdateText(ContentType type)
