@@ -26,9 +26,6 @@
   	<Reference Include="com.unity.multiplayer-hlapi.Runtime">
   	  <HintPath>ref\com.unity.multiplayer-hlapi.Runtime-nstrip.dll</HintPath>
   	</Reference>
-  	<Reference Include="MMHOOK_Assembly-CSharp">
-  	  <HintPath>ref\MMHOOK_Assembly-CSharp-nstrip.dll</HintPath>
-  	</Reference>
   	<Reference Include="Unity.InputSystem">
   	  <HintPath>ref\Unity.InputSystem-nstrip.dll</HintPath>
   	</Reference>

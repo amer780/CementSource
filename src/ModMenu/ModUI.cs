@@ -29,7 +29,7 @@ namespace CementTools.ModMenuTools
         public void UpdateHeight()
         {
             RectTransform parentTransform = (RectTransform)(transform.parent);
-            float y = 0f;
+            float y;
             if (_parameterParent.gameObject.activeSelf)
             {
                 y = 100f + 110f * _parameterParent.childCount;

@@ -120,7 +120,7 @@ public static class DownloadManager
             childFile.AddRequiredBy(modFile);
         }
 
-        modFile.SetRequiredMods(requiredMods.ToArray());
+        modFile.RequiredMods = requiredMods.ToArray();
         return true;
     }
 
