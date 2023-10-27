@@ -176,7 +176,6 @@ public class ModDownloadHandler
                 {
                     Cement.Log($"SUCCEEDED!");
 
-                    modFile.SetString("CurrentVersion", latestVersion);
                     try
                     {
                         if (!UpdateCementFile(modFile))
@@ -191,8 +190,11 @@ public class ModDownloadHandler
                     {
                         Cement.Log($"FAILED TO UPDATE CEMENT FILE BECAUSE {e}");
                     }
-
+                    
                     Cement.Log("FINISHED UPDATING CEMENT FILE");
+                    modFile.SetString("CurrentVersion", latestVersion);
+                    modFile.UpdateFile();
+
                     data.succeeded = true;
 
                     OnProgress(100f);
