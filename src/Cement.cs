@@ -16,6 +16,7 @@ using System.Collections;
 using UnityEngine.UI;
 using System;
 using CementTools.ModLoading;
+using CementTools.Modules.NotificationModule;
 
 namespace CementTools
 {
@@ -613,6 +614,7 @@ namespace CementTools
             {
                 pressedNo = true;
                 SpawnInCementButton();
+                NotificationModule.Send("Is this enough Cement?", "no");
             }
 
             if (Keyboard.current.nKey.wasReleasedThisFrame || Keyboard.current.oKey.wasReleasedThisFrame)

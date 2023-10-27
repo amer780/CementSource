@@ -6,6 +6,7 @@ using UnityEngine.UI;
 
 namespace CementTools.Modules.NotificationModule
 {
+    // Class for individual "toasts", or notifications, or popups, or whatever you wanna call em
     public class Notification : MonoBehaviour
     {
         public static event Action<Notification> OnNotificationStart;
@@ -28,8 +29,8 @@ namespace CementTools.Modules.NotificationModule
         [SerializeField] private TMP_Text content;
 
         // exception messages
-        private readonly string timerBarOrCloseButtonNullMessage = "Notification does not have a timerBar or a closeButton! Notification will not display correctly!";
-        private readonly string titleOrContentNullMessage = "Notification title or content is unassigned! Notification will not display correct text!";
+        private const string timerBarOrCloseButtonNullMessage = "Notification does not have a timerBar or a closeButton! Notification will not display correctly!";
+        private const string titleOrContentNullMessage = "Notification title or content is unassigned! Notification will not display correct text!";
 
         public enum ContentType
         {
@@ -50,14 +51,10 @@ namespace CementTools.Modules.NotificationModule
             if (title == null) title = transform.Find("bg/Content (1)").GetComponent<TMPro.TMP_Text>();
             if (content == null) content = transform.Find("bg/Scroll View/Viewport/Content").GetComponent<TMP_Text>();
 
-            if (title == null || content == null)
+            if (title == null || content == null || closeButton == null || timerBar == null)
             {
-                Cement.Log(titleOrContentNullMessage, BepInEx.Logging.LogLevel.Error);
-            }
-
-            if (timerBar == null || closeButton == null)
-            {
-                Cement.Log(timerBarOrCloseButtonNullMessage, BepInEx.Logging.LogLevel.Error);
+                Cement.Log("Could not find some references in Notification component.", BepInEx.Logging.LogLevel.Error);
+                Destroy(gameObject);
                 return;
             }
 
@@ -68,31 +65,18 @@ namespace CementTools.Modules.NotificationModule
 
         private void Update()
         {
-            try
-            {
-                // only update title's actual UI text if its different than titleText
-                if (title != null && title.text != titleText)
-                {
-                    UpdateText(ContentType.Title);
-                }
-                // only update content's actual UI text if its different than contentText
-                if (content != null && content.text != contentText)
-                {
-                    UpdateText(ContentType.Content);
-                }
+            // only update title's actual UI text if its different than titleText
+            if (title != null && title.text != titleText)
+                UpdateText(ContentType.Title);
+            // only update content's actual UI text if its different than contentText
+            if (content != null && content.text != contentText)
+                UpdateText(ContentType.Content);
 
-                // update timerBar
-                if (timerBar == null) return;
-                if (curTime > 0f) curTime -= Time.deltaTime; else
-                {
-                    CloseNotification(false);
-                }
-                if (timerBar.value != curTime / time) timerBar.value = curTime / time;
-            }
-            catch(Exception ex) // i have no idea how this could possibly throw an error but just in case
-            {
-                Cement.Log("Unhandled error in Notification.Update()! " + ex, BepInEx.Logging.LogLevel.Error);
-            }
+            // update timerBar
+            if (timerBar == null) return;
+            if (curTime > 0f) curTime -= Time.deltaTime; else
+                CloseNotification(false);
+            if (timerBar.value != curTime / time) timerBar.value = curTime / time
         }
 
         private void UpdateText(ContentType type)
@@ -117,7 +101,6 @@ namespace CementTools.Modules.NotificationModule
             if (wasForcedClose)
             {
                 Close();
-                curTime = -1f;
             }
             else
             {
@@ -129,7 +112,7 @@ namespace CementTools.Modules.NotificationModule
         private void Close(bool wasForcedClose=true)
         {
             OnNotificationClosed?.Invoke(this, wasForcedClose);
-            Destroy(this);
+            Destroy(gameObject);
         }
     }
 }

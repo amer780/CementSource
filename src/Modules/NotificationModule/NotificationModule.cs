@@ -7,8 +7,8 @@ namespace CementTools.Modules.NotificationModule
 {
     public class NotificationModule : CementMod
     {
-        private static readonly List<NotificationInfo> notificationsQueue = new List<NotificationInfo>();
-        private static readonly List<Notification> activeNotifications = new List<Notification>();
+        private static List<NotificationInfo> notificationsQueue = new List<NotificationInfo>();
+        private static List<Notification> activeNotifications = new List<Notification>();
         private static readonly int maxActiveNotifications = 3;
 
         private static AssetBundle _bundle = AssetBundle.LoadFromFile(Path.Combine(Cement.CEMENT_PATH, "cement"));
@@ -70,16 +70,17 @@ namespace CementTools.Modules.NotificationModule
             if (notificationsQueue.Count > 0)
             {
                 Cement.Singleton.UseCementEventSystem();
-
-                foreach (var notification in notificationsQueue)
-                {
-                    if (activeNotifications.Count >= maxActiveNotifications) return;
-                    SpawnNotification(notification);
-                }
             }
             else
             {
                 Cement.Singleton.RevertEventSystem();
+            }
+            
+            foreach (var notification in notificationsQueue.ToArray())
+            {
+                if (activeNotifications.Count >= maxActiveNotifications) break;
+                SpawnNotification(notification);
+                notificationsQueue.Remove(notification);
             }
         }
 
@@ -92,8 +93,6 @@ namespace CementTools.Modules.NotificationModule
 
         private static Notification SpawnNotification(NotificationInfo info)
         {
-            _bundle = AssetBundle.LoadFromFile(Path.Combine(Cement.CEMENT_PATH, "cement"));
-
             GameObject notifObj = Instantiate(NotificationPrefab, NotificationContainer);
             Notification notif = notifObj.GetComponent<Notification>();
             if (notif == null)
@@ -107,9 +106,13 @@ namespace CementTools.Modules.NotificationModule
             notif.time = info.time;
 
             activeNotifications.Add(notif);
-            if (notificationsQueue.Contains(info)) notificationsQueue.Remove(info);
-            _bundle.Unload(false);
-
+            Notification.OnNotificationClosed += (notify, wasForced) =>
+            {
+                if (notify == notif)
+                {
+                    activeNotifications.Remove(notif);
+                }
+            };
             return notif;
         }
     }
