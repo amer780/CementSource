@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using CementTools;
 
 // helper class which stores information about a certain field in a mod file: the value, and the attributes
@@ -38,11 +39,45 @@ public class ModFile
         public string key;
         public string value;
     }
-    
-    public event System.Action ChangedValues;
-    public event System.Action Disabled;
+
+    public Dictionary<string, ModFileValue> Values {
+        get 
+        {
+            return _values; 
+        } 
+        private set 
+        { 
+            _values = value; 
+        }
+    }
+
+    public ModFile[] RequiredMods { 
+        private get
+        {
+            return _requiredMods;
+        }
+        set
+        {
+            _requiredMods = value;
+        }
+    }
+
+    public List<ModFile> RequiredBy
+    {
+        private get
+        {
+            return _requiredBy;
+        }
+        set
+        {
+            _requiredBy = value;
+        }
+    }
+
+    public event Action ChangedValues;
+
     private Dictionary<string, ModFileValue> _values = new Dictionary<string, ModFileValue>();
-    private static Dictionary<string, ModFile> _modFiles = new Dictionary<string, ModFile>();
+    private static readonly Dictionary<string, ModFile> _modFiles = new Dictionary<string, ModFile>();
     private ModFile[] _requiredMods;
     private List<ModFile> _requiredBy = new List<ModFile>();
 
@@ -87,11 +122,6 @@ public class ModFile
         return _modFiles[path];
     }
 
-    public void SetRequiredMods(ModFile[] requiredMods)
-    {
-        _requiredMods = requiredMods;
-    }
-
     public void AddRequiredBy(ModFile file)
     {
         _requiredBy.Add(file);
@@ -113,11 +143,6 @@ public class ModFile
         }
     }
 
-    public Dictionary<string, ModFileValue> GetParameters()
-    {
-        return _values;
-    }
-
     public ModFileValue GetValue(string key)
     {
         if (!_values.ContainsKey(key))
@@ -128,7 +153,7 @@ public class ModFile
         return _values[key];
     }
 
-    public void SetValue(string key, ModFileValue value)
+    private void SetValue(string key, ModFileValue value)
     {
         _values[key] = value;
     }
@@ -200,10 +225,6 @@ public class ModFile
         if (value)
         {
             SetString(key, "true");
-            if (key == "Disabled")
-            {
-                Disabled?.Invoke();
-            }
         }
         else
         {

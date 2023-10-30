@@ -19,13 +19,12 @@ namespace CementTools.ModMenuTools
         private GameObject MODMENU;
         private ModFile[] modFiles;
         private GameObject _modUIPrefab;
-        private Dictionary<ModFile, ModUI> _modUIs = new Dictionary<ModFile, ModUI>();
-        private Dictionary<string, List<CementMod>> _modFileToMods = new Dictionary<string, List<CementMod>>();
-        private Dictionary<string, GameObject> _parameterPrefabs = new Dictionary<string, GameObject>();
+        private readonly Dictionary<ModFile, ModUI> _modUIs = new Dictionary<ModFile, ModUI>();
+        private readonly Dictionary<string, List<CementMod>> _modFileToMods = new Dictionary<string, List<CementMod>>();
+        private readonly Dictionary<string, GameObject> _parameterPrefabs = new Dictionary<string, GameObject>();
         private Transform _contentParent;
 
-        private Dictionary<ModFile, Dictionary<string, ParameterUI>> _modFileParameterUIs =
-        new Dictionary<ModFile, Dictionary<string, ParameterUI>>();
+        private readonly Dictionary<ModFile, Dictionary<string, ParameterUI>> _modFileParameterUIs = new Dictionary<ModFile, Dictionary<string, ParameterUI>>();
 
         public ModMenu(AssetBundle bundle)
         {
@@ -117,7 +116,7 @@ namespace CementTools.ModMenuTools
             Transform parameterParent = modUI.GetParameterParent();
 
             _modFileParameterUIs[file] = new Dictionary<string, ParameterUI>();
-            var parameters = file.GetParameters();
+            var parameters = file.Values;
 
             foreach (string key in parameters.Keys)
             {

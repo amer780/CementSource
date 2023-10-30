@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 class URLManager
 {
-    private static Dictionary<string, char> unsupportedUrlEscapeCodes = new Dictionary<string, char>()
+    private static readonly Dictionary<string, char> unsupportedUrlEscapeCodes = new Dictionary<string, char>()
 {
     { "%3C", '<' },
     { "%3E", '>' },

@@ -95,7 +95,7 @@ namespace CementTools.Modules.SceneModule
         public bool random { get; private set; }
         public int time { get; private set; }
         public GameMode gameMode { get; private set; }
-        private string[] sceneNames;
+        private readonly string[] sceneNames;
 
         private int levelIndex = 0;
 
@@ -207,7 +207,7 @@ namespace CementTools.Modules.SceneModule
 
     public class CustomSceneManager : CementMod
     {
-        private static Dictionary<string, CustomScene> customScenes = new Dictionary<string, CustomScene>();
+        private static readonly Dictionary<string, CustomScene> customScenes = new Dictionary<string, CustomScene>();
 
         private static CustomRotationConfig rotationConfig;
 

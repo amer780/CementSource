@@ -242,7 +242,7 @@ namespace CementTools
             {
                 Destroy(cementGUI);
             }
-            ModLoader.LoadAllMods();
+            ModLoader.Setup();
         }
 
         public ModFile GetModFileFromName(string name)
@@ -265,14 +265,14 @@ namespace CementTools
             _usingCementEventSystem = false;
         }
 
-        public void _Log(object o, BepInEx.Logging.LogLevel logLevel=BepInEx.Logging.LogLevel.Info)
+        private void InternalLog(object o, BepInEx.Logging.LogLevel logLevel=BepInEx.Logging.LogLevel.Info)
         {
             Logger.Log(logLevel, o);
         }
 
         public static void Log(object o, BepInEx.Logging.LogLevel logLevel=BepInEx.Logging.LogLevel.Info) // TODO: Add log levels, like ERROR, WARNING, etc.
         {
-            Singleton._Log(o, logLevel);
+            Singleton.InternalLog(o, logLevel);
         }
 
         private void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode)
@@ -650,7 +650,8 @@ namespace CementTools
                     {
                         return;
                     }
-                    _oldEventSystem = global.transform.Find("Input/EventSystem").GetComponent<EventSystem>();
+                    Transform _eventSystemTransform = global.transform.Find("Input/EventSystem");
+                    if (_eventSystemTransform != null) _oldEventSystem = _eventSystemTransform.GetComponent<EventSystem>();
                 }
                 if (_oldEventSystem == null)
                 {
@@ -661,7 +662,7 @@ namespace CementTools
             }
 
             GameObject _splashGo = GameObject.Find("Splash");
-            if (_splashGo != null) _splashGo.GetComponentInChildren<AnyInputOnClick>().enabled = !_usingCementEventSystem;
+            if (_splashGo != null) _splashGo.GetComponentInChildren<AnyInputOnClick>(true).enabled = !_usingCementEventSystem;
         }
 
         private void HandleClickingLinks()

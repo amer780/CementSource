@@ -20,7 +20,7 @@ namespace CementTools.ModLoading
             modHolder.AddComponent<Pool>();
         }
 
-        public static void LoadAllMods()
+        public static void Setup()
         {
             modHolder = new GameObject("Cement Mods");
             GameObject.DontDestroyOnLoad(modHolder);
@@ -33,7 +33,7 @@ namespace CementTools.ModLoading
 
                 ModFile modFile = CementTools.Cement.Singleton.GetModFileFromName(subDirectory);
                 CementTools.Cement.Log("CREATED MOD FILE. LOADING DLLS...");
-                LoadMods(subDirectory, modFile);
+                LoadModAssemblies(subDirectory, modFile);
                 CementTools.Cement.Log("FINISHED LOADING DLLS");
             }
 
@@ -43,7 +43,7 @@ namespace CementTools.ModLoading
             CementTools.Cement.Log("DONE SETTING UP MOD MENU");
         }
 
-        private static void LoadMods(string directory, ModFile modFile)
+        private static void LoadModAssemblies(string directory, ModFile modFile)
         {
             string[] assemblyPaths = Directory.GetFiles(directory, "*.dll");
             foreach (string path in assemblyPaths)

@@ -9,16 +9,16 @@ namespace CementTools.Modules.PoolingModule
     public class Pool : CementMod
     {
         // Dictionary that gets a prefab from a given id
-        private static Dictionary<int, GameObject> idToObject = new Dictionary<int, GameObject>();
+        private static readonly Dictionary<int, GameObject> idToObject = new Dictionary<int, GameObject>();
 
         // Dictionary that gets a id from a given prefab
-        private static Dictionary<GameObject, int> objectToId = new Dictionary<GameObject, int>();
+        private static readonly Dictionary<GameObject, int> objectToId = new Dictionary<GameObject, int>();
 
-        private static List<GameObject> spawnedObjects = new List<GameObject>();
-        private static List<GameObject> pooledObjects = new List<GameObject>();
+        private static readonly List<GameObject> spawnedObjects = new List<GameObject>();
+        private static readonly List<GameObject> pooledObjects = new List<GameObject>();
 
         // Dictionary that corresponds ids to actions
-        private static Dictionary<int, Action<GameObject>> resetActions = new Dictionary<int, Action<GameObject>>();
+        private static readonly Dictionary<int, Action<GameObject>> resetActions = new Dictionary<int, Action<GameObject>>();
 
         private void Awake()
         {
@@ -102,11 +102,7 @@ namespace CementTools.Modules.PoolingModule
             }
             else
             {
-                Action<GameObject> reset = resetActions[id];
-                if (reset != null)
-                {
-                    reset(@object);
-                }
+                resetActions[id]?.Invoke(@object);
 
                 // In case the custom reset action destroys the object
                 if (@object == null)
