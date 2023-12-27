@@ -12,7 +12,7 @@ namespace CementTools.Modules.NotificationModule
         private static List<Notification> activeNotifications = new List<Notification>();
         private static readonly int maxActiveNotifications = 3;
 
-        private static AssetBundle _bundle = AssetBundle.LoadFromFile(Path.Combine(Cement.CEMENT_PATH, "cement"));
+        private static readonly AssetBundle _bundle = AssetBundle.LoadFromFile(Path.Combine(Cement.CEMENT_PATH, "cement"));
 
         public static GameObject NotificationPrefab
         {
