@@ -16,8 +16,7 @@ using System.Collections;
 using UnityEngine.UI;
 using System;
 using CementTools.ModLoading;
-using GB.UI.Menu;
-using GB.UI;
+using CementTools.Modules.NotificationModule;
 
 namespace CementTools
 {
@@ -154,6 +153,7 @@ namespace CementTools
         {
             _singleton = this;
             DontDestroyOnLoad(_singleton);
+            HarmonyLib.Harmony.CreateAndPatchAll(typeof(Patches.Patch_Credits));
             LoadCement();
             HarmonyLib.Harmony.CreateAndPatchAll(typeof(Patches.Patch_Credits));
         }
