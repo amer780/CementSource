@@ -1,3 +1,8 @@
+using BepInEx;
+using CementTools.ModLoading;
+using CementTools.ModMenuTools;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -10,14 +15,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.SceneManagement;
-using CementTools.ModMenuTools;
-using BepInEx;
-using System.Collections;
 using UnityEngine.UI;
-using System;
-using CementTools.ModLoading;
-using GB.UI.Menu;
-using GB.UI;
 
 namespace CementTools
 {
@@ -147,13 +145,13 @@ namespace CementTools
         private EventSystem _oldEventSystem;
         private EventSystem _cementEventSystem;
         private bool _usingCementEventSystem;
-        private Navigation cementNav;
 
         // this is where the main processing happens, so look here to see how Cement works.
         private void Awake()
         {
             _singleton = this;
             DontDestroyOnLoad(_singleton);
+            HarmonyLib.Harmony.CreateAndPatchAll(typeof(Patches.Patch_Credits));
             LoadCement();
             HarmonyLib.Harmony.CreateAndPatchAll(typeof(Patches.Patch_Credits));
         }
