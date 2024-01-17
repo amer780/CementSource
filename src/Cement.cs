@@ -206,6 +206,7 @@ namespace CementTools
                         {
                             summaryText += $"\n\n{FAILED_TAG}Failed to download all required mods. Try restarting your game, or make sure you have a good internet connection.</color>\n\n";
                             if (cementGUI != null) Destroy(cementGUI);
+                            Cement.Singleton.CreateSummary();
                         }
                     });
                 }

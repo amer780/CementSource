@@ -85,6 +85,10 @@ namespace CementTools.ModMenuTools
         {
             foreach (ModFile mod in modFiles)
             {   
+                if (mod.IsBad || !mod.IsLoaded)
+                {
+                    continue;
+                }
                 CementTools.Cement.Log($"Creating UI for mod {mod.path}");
                 CreateUIForMod(mod);
             }

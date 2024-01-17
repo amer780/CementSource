@@ -60,7 +60,10 @@ public static class DownloadManager
         string rawLinks = modFile.GetString("Links");
         if (rawLinks == null)
         {
-            return false;
+            Cement.Log("No links.");
+            // we dont want to return false and prevent other legitamate mods from being downloaded
+            modFile.FlagAsBad(); // stops it from being loaded by Mod Menu and from trying to download files from it
+            return true;
         }
 
         List<ModFile> requiredMods = new List<ModFile>();
