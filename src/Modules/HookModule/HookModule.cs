@@ -28,7 +28,7 @@ namespace CementTools.Modules.HookModule
                 this.isPrefix = isPrefix;
             }
         }
-        private static readonly Harmony defaultHarmony;
+        private static readonly HarmonyLib.Harmony defaultHarmony;
 
         /// <summary>
         /// Create a hook on a method that will toggle on and off with the passed CementMod.
@@ -36,7 +36,7 @@ namespace CementTools.Modules.HookModule
         /// <param name="hook">The <see cref="CementHook"/> info to patch with.</param>
         public static void CreateHook(CementHook hook)
         {
-            Harmony modHarmony = new Harmony(hook.callingMod.name);
+            HarmonyLib.Harmony modHarmony = new HarmonyLib.Harmony(hook.callingMod.name);
 
             HarmonyMethod prefix = hook.isPrefix ? new HarmonyMethod(hook.hook) : null;
             HarmonyMethod postfix = hook.isPrefix ? null : new HarmonyMethod(hook.hook);

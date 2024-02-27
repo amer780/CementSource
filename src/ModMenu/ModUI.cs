@@ -2,17 +2,21 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using CementTools.Modules.NotificationModule;
+using System;
 
 namespace CementTools.ModMenuTools
 {
     // a class which handles the UI in the mod menu for a specific mod
+    [MelonLoader.RegisterTypeInIl2Cpp]
     public class ModUI : MonoBehaviour
     {
+        public ModUI(IntPtr intPtr) : base(intPtr) {  }
+
         ModFile modFile;
-        [SerializeField] private Transform _parameterParent;
-        public Toggle parameterToggle;
-        public Toggle modFileToggle;
-        [SerializeField] private TMP_Text _name;
+        private Transform _parameterParent; // TODO: assign
+        public Toggle parameterToggle; // TODO: assign
+        public Toggle modFileToggle; // TODO: assign
+        private TMP_Text _name; // TODO: assign
 
         public Transform GetParameterParent()
         {

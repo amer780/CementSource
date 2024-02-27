@@ -20,9 +20,13 @@ namespace CementTools.Modules.PoolingModule
         // Dictionary that corresponds ids to actions
         private static readonly Dictionary<int, Action<GameObject>> resetActions = new Dictionary<int, Action<GameObject>>();
 
+        public Pool(IntPtr intPtr) : base(intPtr)
+        {
+        }
+
         private void Awake()
         {
-            SceneManager.sceneLoaded += SceneChanged;
+            SceneManager.add_sceneLoaded((UnityEngine.Events.UnityAction<Scene, LoadSceneMode>)SceneChanged);
         }
 
         private void SceneChanged(Scene _, LoadSceneMode __)

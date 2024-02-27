@@ -7,6 +7,7 @@ using UnityEngine.InputSystem.Users;
 
 namespace CementTools.Modules.InputModule
 {
+    /* // TODO: disabled due to IL2CPP incompatibility. For some reason InputControl#IsPressed() doesn't exist anymore.
     public class CallbackManager
     {
         public CallbackManager(string input)
@@ -167,7 +168,7 @@ namespace CementTools.Modules.InputModule
                 foreach (string key in onKeyHeld.Keys)
                 {
                     InputControl control = inputDevice.TryGetChildControl(key);
-                    if (control != null)
+                    /*if (control != null)
                     {
                         if (control.IsPressed())
                         {
@@ -183,6 +184,7 @@ namespace CementTools.Modules.InputModule
                     {
                         string hashCode = control.GetHashCode().ToString();
 
+                        /*
                         if (control.IsPressed())
                         {
                             Cement.Log(control);
@@ -212,7 +214,7 @@ namespace CementTools.Modules.InputModule
                         InputControl control = inputDevice.TryGetChildControl(input);
                         if (control != null)
                         {
-                            if (!control.IsPressed())
+                            if (!control.Is()
                             {
                                 allPressed = false;
                                 break;
@@ -279,4 +281,5 @@ namespace CementTools.Modules.InputModule
             i = !i;
         }
     }
+    */
 }

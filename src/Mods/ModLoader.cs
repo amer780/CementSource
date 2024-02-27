@@ -6,6 +6,7 @@ using CementTools.Modules.SceneModule;
 using System;
 using System.IO;
 using System.Reflection;
+using UnhollowerRuntimeLib;
 using UnityEngine;
 
 namespace CementTools.ModLoading
@@ -16,7 +17,6 @@ namespace CementTools.ModLoading
 
         private static void LoadAllModules()
         {
-            modHolder.AddComponent<InputManager>();
             modHolder.AddComponent<CustomSceneManager>();
             modHolder.AddComponent<Pool>();
             modHolder.AddComponent<NotificationModule>();
@@ -73,7 +73,7 @@ namespace CementTools.ModLoading
                         {
                             try
                             {
-                                CementMod mod = InstantiateMod(type);
+                                CementMod mod = InstantiateMod(Il2CppType.From(type));
                                 mod.modDirectoryPath = directory;
                                 mod.modFile = modFile;
                                 mod.enabled = !modFile.GetBool("Disabled");
@@ -98,7 +98,7 @@ namespace CementTools.ModLoading
             }
         }
 
-        private static CementMod InstantiateMod(Type mod)
+        private static CementMod InstantiateMod(Il2CppSystem.Type mod)
         {
             return modHolder.AddComponent(mod) as CementMod;
         }
