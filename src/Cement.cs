@@ -2,6 +2,7 @@ using CementTools.ModLoading;
 using CementTools.ModMenuTools;
 using MelonLoader;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -18,10 +19,10 @@ using UnityEngine.UI;
 
 namespace CementTools
 {
-    [RegisterTypeInIl2Cpp] // TODO: required for custom MonoBehaviours to function (unless you're using FieldInjector, which would be the permanent solution)
+    [RegisterTypeInIl2Cpp] // required for custom MonoBehaviours to function (unless you're using FieldInjector, which would be the permanent solution)
     public class Cement : MonoBehaviour
     {
-        public Cement(IntPtr intPtr) : base(intPtr) { } // TODO: required for custom MonoBehaviours to function (unless you're using FieldInjector, which would be the permanent solution)
+        public Cement(IntPtr intPtr) : base(intPtr) { } // required for custom MonoBehaviours to function (unless you're using FieldInjector, which would be the permanent solution)
 
         public static Cement Singleton
         {
