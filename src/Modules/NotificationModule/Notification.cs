@@ -23,10 +23,10 @@ namespace CementTools.Modules.NotificationModule
 
         private float curTime = 1f;
 
-        private Button closeButton;
-        private Slider timerBar;
-        private TMP_Text title;
-        private TMP_Text content;
+        [SerializeField] private Button closeButton;
+        [SerializeField] private Slider timerBar;
+        [SerializeField] private TMP_Text title;
+        [SerializeField] private TMP_Text content;
 
         public enum ContentType
         {
@@ -49,12 +49,12 @@ namespace CementTools.Modules.NotificationModule
 
             if (title == null || content == null || closeButton == null || timerBar == null)
             {
-                Cement.Log("Could not find some references in Notification component.");
+                Cement.Log("Could not find some references in Notification component.", BepInEx.Logging.LogLevel.Error);
                 Destroy(gameObject);
                 return;
             }
 
-            closeButton?.onClick.AddListener(new Action(() => CloseNotification()));
+            closeButton?.onClick.AddListener(() => CloseNotification());
 
             OnNotificationStart?.Invoke(this);
         }

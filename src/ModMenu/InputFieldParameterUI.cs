@@ -1,4 +1,3 @@
-using System;
 using TMPro;
 using UnityEngine;
 
@@ -6,12 +5,8 @@ namespace CementTools.ModMenuTools
 {
     public class InputFieldParameterUI : ParameterUI
     {
-        private TMP_InputField _inputField; // TODO: assign
-        private TMP_Text _paramName; // TODO: assign
-
-        public InputFieldParameterUI(IntPtr intPtr) : base(intPtr)
-        {
-        }
+        [SerializeField] private TMP_InputField _inputField;
+        [SerializeField] private TMP_Text _paramName;
 
         public override string GetValue()
         {

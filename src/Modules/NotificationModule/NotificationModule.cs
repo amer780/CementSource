@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
@@ -20,7 +19,7 @@ namespace CementTools.Modules.NotificationModule
             get
             {
                 if (_notificationGO is null)
-                    _notificationGO = _bundle.LoadAsset("Notification", UnhollowerRuntimeLib.Il2CppType.Of<GameObject>()).Cast<GameObject>();
+                    _notificationGO = _bundle.LoadAsset<GameObject>("Notification");
                 return _notificationGO;
             }
             private set
@@ -36,7 +35,7 @@ namespace CementTools.Modules.NotificationModule
             {
                 if (_canvasTransform is null)
                 {
-                    _canvasTransform = Instantiate(_bundle.LoadAsset("NotificationCanvas", UnhollowerRuntimeLib.Il2CppType.Of<GameObject>()).Cast<GameObject>()).transform;
+                    _canvasTransform = Instantiate(_bundle.LoadAsset<GameObject>("NotificationCanvas")).transform;
                     DontDestroyOnLoad(_canvasTransform);
                 }
                 return _canvasTransform;
@@ -63,10 +62,6 @@ namespace CementTools.Modules.NotificationModule
         }
         private static Transform _containerTransform;
 
-        public NotificationModule(IntPtr intPtr) : base(intPtr)
-        {
-        }
-
         private void Update()
         {
             foreach (var notification in notificationsQueue.ToArray())
@@ -90,7 +85,7 @@ namespace CementTools.Modules.NotificationModule
             Notification notif = notifObj.GetComponent<Notification>();
             if (notif == null)
             {
-                Cement.Log("Could not find Notification component on prefab. Attempting to create one.");
+                Cement.Log("Could not find Notification component on prefab. Attempting to create one.", BepInEx.Logging.LogLevel.Warning);
                 notif = notifObj.AddComponent<Notification>();
             }
 

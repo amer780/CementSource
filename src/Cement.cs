@@ -1,6 +1,7 @@
+using BepInEx;
 using CementTools.ModLoading;
 using CementTools.ModMenuTools;
-using MelonLoader;
+using CementTools.Modules.NotificationModule;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -19,11 +20,9 @@ using UnityEngine.UI;
 
 namespace CementTools
 {
-    [RegisterTypeInIl2Cpp] // required for custom MonoBehaviours to function (unless you're using FieldInjector, which would be the permanent solution)
-    public class Cement : MonoBehaviour
+    [BepInPlugin("org.gangbeastsmodding.cement.blastfurnaceslag", "Cement", "3.0.0")]
+    public class Cement : BaseUnityPlugin
     {
-        public Cement(IntPtr intPtr) : base(intPtr) { } // required for custom MonoBehaviours to function (unless you're using FieldInjector, which would be the permanent solution)
-
         public static Cement Singleton
         {
             get
@@ -78,8 +77,6 @@ namespace CementTools
 
         private const string CEMENT_VERSION_URL = "https://raw.githubusercontent.com/CementGB/cementresources/main/BepInEx/plugins/Cement/version";
 
-        
-
         public static string MODS_FOLDER_PATH
         {
             get
@@ -96,7 +93,7 @@ namespace CementTools
         {
             get
             {
-                string path = Path.Combine(Application.dataPath, "..", "modbin");
+                string path = Path.Combine(Application.dataPath, "modbin");
                 if (!Directory.Exists(path))
                     Directory.CreateDirectory(path);
 
@@ -120,7 +117,7 @@ namespace CementTools
         {
             get
             {
-                string path = Path.Combine(Application.dataPath, "..", "Mods", "Cement");
+                string path = Path.Combine(Application.dataPath, "..", "BepInEx", "plugins", "Cement");
                 if (!Directory.Exists(path))
                 {
                     DirectoryInfo hidden = Directory.CreateDirectory(path);
@@ -145,6 +142,7 @@ namespace CementTools
             HarmonyLib.Harmony.CreateAndPatchAll(typeof(Patches.Patch_Credits));
         }
 
+
         private void Update()
         {
             IsThisEnoughCement();
@@ -155,13 +153,14 @@ namespace CementTools
 
         private void OnDestroy()
         {
-            Melon<Mod>.Logger.Error($"GETTING DESTROYED {transform.parent.name}");
+            Logger.LogError($"GETTING DESTROYED {transform.parent.name}");
         }
 
         private void LoadCement()
         {
             _hasInternet = IsConnectedToWifi();
             Cement.Log($"IS CONNECTED TO WIFI? {_hasInternet}");
+            SceneManager.sceneLoaded += OnSceneLoaded;
 
             try
             {
@@ -192,7 +191,7 @@ namespace CementTools
                 }
                 catch (Exception e)
                 {
-                    Melon<Mod>.Logger.Error($"Error while creating gui: {e}");
+                    Logger.LogError($"Error while creating gui: {e}");
                 }
                 if (ModsPresent())
                 {
@@ -251,27 +250,34 @@ namespace CementTools
             _usingCementEventSystem = false;
         }
 
-        private void InternalLog(object o)
+        private void InternalLog(object o, BepInEx.Logging.LogLevel logLevel=BepInEx.Logging.LogLevel.Info)
         {
-            Melon<Mod>.Logger.Msg(o);
+            Logger.Log(logLevel, o);
         }
 
-        public static void Log(object o)
+        public static void Log(object o, BepInEx.Logging.LogLevel logLevel=BepInEx.Logging.LogLevel.Info) // TODO: Add log levels, like ERROR, WARNING, etc.
         {
-            Singleton.InternalLog(o);
+            Singleton.InternalLog(o, logLevel);
         }
 
-        bool TextSectionFound // TODO: This was made quickly, i need to clean it up
+        private void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode)
         {
-            get
+            if (scene.name == "Menu")
             {
-                bool newTsf = SceneManager.GetActiveScene().name == "Menu" && (GameObject.Find("TextSection") == null || GameObject.Find("TextSection").transform.Find("Local") == null);
-                if (newTsf != TextSectionFound)
-                {
-                    if (newTsf) SpawnInCementButton();
-                }
-                return GameObject.Find("TextSection") == null || GameObject.Find("TextSection").transform.Find("Local") == null;
+                Cement.Log("Spawned cement button is false");
+                StartCoroutine(WaitUntilTextSectionExists(SpawnInCementButton));
             }
+        }
+
+        private IEnumerator WaitUntilTextSectionExists(Action callback)
+        {
+            Cement.Log("Waiting for TextSection...");
+            yield return new WaitUntil(() => GameObject.Find("TextSection") != null);
+            GameObject g = GameObject.Find("TextSection");
+            Cement.Log("Waiting for Local...");
+            yield return new WaitUntil(() => GameObject.Find("TextSection").transform.Find("Local") != null);
+            Cement.Log("Found Local!");
+            callback.Invoke();
         }
 
         private void SpawnInCementButton()
@@ -311,7 +317,7 @@ namespace CementTools
             Button.ButtonClickedEvent onClickedEvent = new Button.ButtonClickedEvent();
             onClickForButton.SetValue(button, onClickedEvent);
 
-            button.onClick.AddListener((UnityEngine.Events.UnityAction)ModMenu.Singleton.Enable);
+            button.onClick.AddListener(ModMenu.Singleton.Enable);
 
             cementButtonNav.selectOnUp = settingsButton;
             cementButtonNav.selectOnDown = creditsButton;
@@ -331,7 +337,7 @@ namespace CementTools
         {
             try
             {
-                GameObject mainObject = Instantiate(_bundle.LoadAsset("EventSystem", UnhollowerRuntimeLib.Il2CppType.Of<GameObject>()).Cast<GameObject>());
+                GameObject mainObject = Instantiate(_bundle.LoadAsset<GameObject>("EventSystem"));
                 _cementEventSystem = mainObject.GetComponent<EventSystem>();
                 InputSystemUIInputModule inputModule = mainObject.GetComponent<InputSystemUIInputModule>();
 
@@ -350,12 +356,12 @@ namespace CementTools
 
         private void CreateGUI()
         {
-            _bundle = AssetBundle.LoadFromFile(Path.Combine(CEMENT_PATH, "cement"));
-            cementGUI = Instantiate(_bundle.LoadAsset("CementLoadingScreen", UnhollowerRuntimeLib.Il2CppType.Of<GameObject>()).Cast<GameObject>());
-            summaryGUI = Instantiate(_bundle.LoadAsset("CementSummaryCanvas", UnhollowerRuntimeLib.Il2CppType.Of<GameObject>()).Cast<GameObject>());
+            _bundle = AssetBundle.LoadFromFile(Path.Combine(Paths.BepInExRootPath, "plugins", "Cement", "cement"));
+            cementGUI = Instantiate(_bundle.LoadAsset<GameObject>("CementLoadingScreen"));
+            summaryGUI = Instantiate(_bundle.LoadAsset<GameObject>("CementSummaryCanvas"));
 
             Button okButton = summaryGUI.transform.Find("Scroll View").Find("OK").GetComponent<Button>();
-            okButton.onClick.AddListener((UnityEngine.Events.UnityAction)CloseSummaryMenu);
+            okButton.onClick.AddListener(CloseSummaryMenu);
 
             DontDestroyOnLoad(cementGUI);
             DontDestroyOnLoad(summaryGUI);

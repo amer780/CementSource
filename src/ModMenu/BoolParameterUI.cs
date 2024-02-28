@@ -1,4 +1,3 @@
-using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,13 +6,8 @@ namespace CementTools.ModMenuTools
 {
     public class BoolParameterUI : ParameterUI
     {
-        private Toggle _toggle; // TODO: assign
-        private TMP_Text _paramName; // TODO: assign
-
-        public BoolParameterUI(IntPtr intPtr) : base(intPtr)
-        {
-        }
-
+        [SerializeField] private Toggle _toggle;
+        [SerializeField] private TMP_Text _paramName;
         public override string GetValue()
         {
             if (_toggle.isOn)

@@ -219,10 +219,6 @@ namespace CementTools.Modules.SceneModule
 
         private static bool busyInCustomGame;
 
-        public CustomSceneManager(IntPtr intPtr) : base(intPtr)
-        {
-        }
-
         private void Awake()
         {
             DontDestroyOnLoad(gameObject);
@@ -291,7 +287,7 @@ namespace CementTools.Modules.SceneModule
         {
             if (scene.name == "Menu")
             {
-                SceneManager.remove_sceneLoaded((UnityEngine.Events.UnityAction<Scene, LoadSceneMode>)HandleCustomRotationConfig);
+                SceneManager.sceneLoaded -= HandleCustomRotationConfig;
                 busyInCustomGame = false;
                 return;
             }
@@ -326,7 +322,7 @@ namespace CementTools.Modules.SceneModule
             busyInCustomGame = true;
 
             rotationConfig = customRotationConfig;
-            SceneManager.add_sceneLoaded((UnityEngine.Events.UnityAction<Scene, LoadSceneMode>)HandleCustomRotationConfig);
+            SceneManager.sceneLoaded += HandleCustomRotationConfig;
 
             MenuHandlerGamemodes handler = GameObject.FindObjectOfType<MenuHandlerGamemodes>();
             if (handler == null)
@@ -382,13 +378,13 @@ namespace CementTools.Modules.SceneModule
             cachedSceneName = name;
 
             playingCustomScene = true;
-            SceneManager.add_sceneLoaded((UnityEngine.Events.UnityAction<Scene, LoadSceneMode>)OnCustomSceneLoaded);
+            SceneManager.sceneLoaded += OnCustomSceneLoaded;
         }
 
         private static void OnCustomSceneLoaded(Scene scene, LoadSceneMode _)
         {
             LoadCustomScene(cachedSceneName);
-            SceneManager.remove_sceneLoaded((UnityEngine.Events.UnityAction<Scene, LoadSceneMode>)OnCustomSceneLoaded);
+            SceneManager.sceneLoaded -= OnCustomSceneLoaded;
         }
 
         // Removes objects from Grind and adds custom objects
