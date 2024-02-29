@@ -2,17 +2,21 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using CementTools.Modules.NotificationModule;
+using Il2CppInterop.Runtime.InteropTypes.Fields;
+using System;
 
 namespace CementTools.ModMenuTools
 {
     // a class which handles the UI in the mod menu for a specific mod
     public class ModUI : MonoBehaviour
     {
+        public ModUI(IntPtr ptr) : base(ptr) { }
+
         ModFile modFile;
-        [SerializeField] private Transform _parameterParent;
+        public Il2CppReferenceField<Transform> _parameterParent;
         public Toggle parameterToggle;
         public Toggle modFileToggle;
-        [SerializeField] private TMP_Text _name;
+        public Il2CppReferenceField<TMP_Text> _name;
 
         public Transform GetParameterParent()
         {
@@ -23,7 +27,7 @@ namespace CementTools.ModMenuTools
         {
             modFile = file;
             modFileToggle.isOn = enabled;
-            _name.text = name;
+            _name.Value.text = name;
         }
 
         // update height is used, because when toggling the mod, the UI's height doesn't automatically shrink or grow
@@ -31,9 +35,9 @@ namespace CementTools.ModMenuTools
         {
             RectTransform parentTransform = (RectTransform)(transform.parent);
             float y;
-            if (_parameterParent.gameObject.activeSelf)
+            if (_parameterParent.Value.gameObject.activeSelf)
             {
-                y = 100f + 110f * _parameterParent.childCount;
+                y = 100f + 110f * _parameterParent.Value.childCount;
             }
             else
             {
@@ -46,7 +50,7 @@ namespace CementTools.ModMenuTools
  
         public void ToggleParameters()
         {
-            _parameterParent.gameObject.SetActive(parameterToggle.isOn);
+            _parameterParent.Value.gameObject.SetActive(parameterToggle.isOn);
             UpdateHeight();
         }
 

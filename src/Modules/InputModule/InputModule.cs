@@ -57,6 +57,10 @@ namespace CementTools.Modules.InputModule
 
         bool i = true;
 
+        public InputManager(IntPtr ptr) : base(ptr)
+        {
+        }
+
         private InputDevice GetLastDetectedInputDevice()
         {
             return MonoSingleton<UnityInputSystemManager>.Instance.GetLastDetectedInputDevice();

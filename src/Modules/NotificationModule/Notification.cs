@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Il2CppInterop.Runtime.InteropTypes.Fields;
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace CementTools.Modules.NotificationModule
@@ -23,10 +25,10 @@ namespace CementTools.Modules.NotificationModule
 
         private float curTime = 1f;
 
-        [SerializeField] private Button closeButton;
-        [SerializeField] private Slider timerBar;
-        [SerializeField] private TMP_Text title;
-        [SerializeField] private TMP_Text content;
+        public Il2CppReferenceField<Button> closeButton;
+        public Il2CppReferenceField<Slider> timerBar;
+        public Il2CppReferenceField<TMP_Text> title;
+        public Il2CppReferenceField<TMP_Text> content;
 
         public enum ContentType
         {
@@ -54,7 +56,7 @@ namespace CementTools.Modules.NotificationModule
                 return;
             }
 
-            closeButton?.onClick.AddListener(() => CloseNotification());
+            closeButton.Value?.onClick.AddListener((UnityAction)(() => CloseNotification()));
 
             OnNotificationStart?.Invoke(this);
         }
@@ -62,17 +64,17 @@ namespace CementTools.Modules.NotificationModule
         private void Update()
         {
             // only update title's actual UI text if its different than titleText
-            if (title != null && title.text != titleText)
+            if (title != null && title.Value.text != titleText)
                 UpdateText(ContentType.Title);
             // only update content's actual UI text if its different than contentText
-            if (content != null && content.text != contentText)
+            if (content != null && content.Value.text != contentText)
                 UpdateText(ContentType.Content);
 
             // update timerBar
             if (timerBar == null) return;
             if (curTime > 0f) curTime -= Time.deltaTime; else
                 CloseNotification(false);
-            if (timerBar.value != curTime / time) timerBar.value = curTime / time;
+            if (timerBar.Value.value != curTime / time) timerBar.Value.value = curTime / time;
         }
 
         private void UpdateText(ContentType type)
@@ -80,12 +82,12 @@ namespace CementTools.Modules.NotificationModule
             switch(type)
             {
                 case ContentType.Title:
-                    if (title != null) title.text = titleText;
+                    if (title != null) title.Value.text = titleText;
                     OnTextUpdated?.Invoke(this, ContentType.Title);
 
                     break;
                 case ContentType.Content:
-                    if (content != null) content.text = contentText;
+                    if (content != null) content.Value.text = contentText;
                     OnTextUpdated?.Invoke(this, ContentType.Title);
 
                     break;

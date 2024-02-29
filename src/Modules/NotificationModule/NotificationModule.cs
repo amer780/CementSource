@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Il2CppInterop.Runtime;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
@@ -19,7 +21,7 @@ namespace CementTools.Modules.NotificationModule
             get
             {
                 if (_notificationGO is null)
-                    _notificationGO = _bundle.LoadAsset<GameObject>("Notification");
+                    _notificationGO = _bundle.LoadAsset("Notification", Il2CppType.Of<GameObject>()).Cast<GameObject>();
                 return _notificationGO;
             }
             private set
@@ -35,7 +37,7 @@ namespace CementTools.Modules.NotificationModule
             {
                 if (_canvasTransform is null)
                 {
-                    _canvasTransform = Instantiate(_bundle.LoadAsset<GameObject>("NotificationCanvas")).transform;
+                    _canvasTransform = _bundle.LoadAsset("NotificationCanvas", Il2CppType.Of<GameObject>()).Cast<GameObject>().transform;
                     DontDestroyOnLoad(_canvasTransform);
                 }
                 return _canvasTransform;
@@ -61,6 +63,10 @@ namespace CementTools.Modules.NotificationModule
             }
         }
         private static Transform _containerTransform;
+
+        public NotificationModule(IntPtr ptr) : base(ptr)
+        {
+        }
 
         private void Update()
         {

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
 namespace CementTools.Modules.PoolingModule
@@ -20,9 +21,13 @@ namespace CementTools.Modules.PoolingModule
         // Dictionary that corresponds ids to actions
         private static readonly Dictionary<int, Action<GameObject>> resetActions = new Dictionary<int, Action<GameObject>>();
 
+        public Pool(IntPtr ptr) : base(ptr)
+        {
+        }
+
         private void Awake()
         {
-            SceneManager.sceneLoaded += SceneChanged;
+            SceneManager.add_sceneLoaded((UnityAction<Scene, LoadSceneMode>)SceneChanged);
         }
 
         private void SceneChanged(Scene _, LoadSceneMode __)

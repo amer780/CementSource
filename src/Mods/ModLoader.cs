@@ -3,6 +3,7 @@ using CementTools.Modules.InputModule;
 using CementTools.Modules.NotificationModule;
 using CementTools.Modules.PoolingModule;
 using CementTools.Modules.SceneModule;
+using Il2CppInterop.Runtime;
 using System;
 using System.IO;
 using System.Reflection;
@@ -73,7 +74,7 @@ namespace CementTools.ModLoading
                         {
                             try
                             {
-                                CementMod mod = InstantiateMod(type);
+                                CementMod mod = InstantiateMod(Il2CppType.From(type));
                                 mod.modDirectoryPath = directory;
                                 mod.modFile = modFile;
                                 mod.enabled = !modFile.GetBool("Disabled");
@@ -98,9 +99,9 @@ namespace CementTools.ModLoading
             }
         }
 
-        private static CementMod InstantiateMod(Type mod)
+        private static CementMod InstantiateMod(Il2CppSystem.Type mod)
         {
-            return modHolder.AddComponent(mod) as CementMod;
+            return modHolder.AddComponent(mod).Cast<CementMod>();
         }
     }
 }

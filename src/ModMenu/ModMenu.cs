@@ -1,3 +1,4 @@
+using Il2CppInterop.Runtime;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -63,22 +64,22 @@ namespace CementTools.ModMenuTools
 
         private void SetupPrefabs(AssetBundle bundle)
         {
-            GameObject modMenuPrefab = bundle.LoadAsset<GameObject>("CementModMenu");
+            GameObject modMenuPrefab = bundle.LoadAsset("CementModMenu", Il2CppType.Of<GameObject>()).Cast<GameObject>();
             MODMENU = GameObject.Instantiate(modMenuPrefab);
             GameObject.DontDestroyOnLoad(MODMENU);
             MODMENU.SetActive(false);
 
-            MODMENU.transform.Find("Scroll View/Close").GetComponent<Button>().onClick.AddListener(Disable);
-            MODMENU.transform.Find("Scroll View/ClearCache").GetComponent<Button>().onClick.AddListener(CementTools.Cement.ClearCache);
+            MODMENU.transform.Find("Scroll View/Close").GetComponent<Button>().onClick.AddListener((UnityEngine.Events.UnityAction)Disable);
+            MODMENU.transform.Find("Scroll View/ClearCache").GetComponent<Button>().onClick.AddListener((UnityEngine.Events.UnityAction)CementTools.Cement.ClearCache);
 
             _contentParent = MODMENU.transform.Find("Scroll View/Viewport/Content");
 
-            _modUIPrefab = bundle.LoadAsset<GameObject>("ModFileContainer");
+            _modUIPrefab = bundle.LoadAsset("ModFileContainer", Il2CppType.Of<GameObject>()).Cast<GameObject>();
 
-            _parameterPrefabs["String"] = bundle.LoadAsset<GameObject>("StringParameterUI");
-            _parameterPrefabs["Float"] = bundle.LoadAsset<GameObject>("FloatParameterUI");
-            _parameterPrefabs["Boolean"] = bundle.LoadAsset<GameObject>("BoolParameterUI");
-            _parameterPrefabs["Integer"] = bundle.LoadAsset<GameObject>("IntegerParameterUI");
+            _parameterPrefabs["String"] = bundle.LoadAsset("StringParameterUI", Il2CppType.Of<GameObject>()).Cast<GameObject>();
+            _parameterPrefabs["Float"] = bundle.LoadAsset("FloatParameterUI", Il2CppType.Of<GameObject>()).Cast<GameObject>();
+            _parameterPrefabs["Boolean"] = bundle.LoadAsset("BoolParameterUI", Il2CppType.Of<GameObject>()).Cast<GameObject>(); ;
+            _parameterPrefabs["Integer"] = bundle.LoadAsset("IntegerParameterUI", Il2CppType.Of<GameObject>()).Cast<GameObject>();
         }
 
         private void CreateUIForMods()
