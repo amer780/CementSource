@@ -13,7 +13,7 @@ namespace CementTools.ModLoading
 {
     public static class ModLoader
     {
-        public static GameObject modHolder;
+        private static GameObject modHolder;
 
         private static void LoadAllModules()
         {
@@ -34,14 +34,14 @@ namespace CementTools.ModLoading
             {
                 CementTools.Cement.Log($"PROCESSING SUB {subDirectory}");
 
-                ModFile modFile = CementTools.Cement.Singleton.GetModFileFromName(subDirectory);
+                ModFile modFile = CementTools.Cement.Instance.GetModFileFromName(subDirectory);
                 CementTools.Cement.Log("CREATED MOD FILE. LOADING DLLS...");
                 LoadModAssemblies(subDirectory, modFile);
                 CementTools.Cement.Log("FINISHED LOADING DLLS");
                 modFile.GotLoaded();
             }
 
-            CementTools.Cement.Singleton.CreateSummary();
+            CementTools.Cement.Instance.CreateSummary();
             CementTools.Cement.Log("SETTING UP MOD MENU");
             ModMenu.Singleton.SetupModMenu();
             CementTools.Cement.Log("DONE SETTING UP MOD MENU");
@@ -84,8 +84,8 @@ namespace CementTools.ModLoading
                             catch (Exception e)
                             {
                                 CementTools.Cement.Log($"Error occurred while loading {type.Name}: {e}");
-                                CementTools.Cement.Singleton.AddToSummary(CementTools.Cement.FAILED_TAG);
-                                CementTools.Cement.Singleton.AddToSummary($"Error occurred while loading {type.Name}: {e}\n");
+                                CementTools.Cement.Instance.AddToSummary(CementTools.Cement.FAILED_TAG);
+                                CementTools.Cement.Instance.AddToSummary($"Error occurred while loading {type.Name}: {e}\n");
                             }
                         }
                     }
@@ -93,8 +93,8 @@ namespace CementTools.ModLoading
                 catch (Exception e)
                 {
                     CementTools.Cement.Log($"Error loading assembly {path}. {e}");
-                    CementTools.Cement.Singleton.AddToSummary(CementTools.Cement.FAILED_TAG);
-                    CementTools.Cement.Singleton.AddToSummary($"Error occurred while loading assembly {IOExtender.GetFileName(path)}.");
+                    CementTools.Cement.Instance.AddToSummary(CementTools.Cement.FAILED_TAG);
+                    CementTools.Cement.Instance.AddToSummary($"Error occurred while loading assembly {IOExtender.GetFileName(path)}.");
                 }
             }
         }

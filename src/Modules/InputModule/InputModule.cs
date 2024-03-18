@@ -1,5 +1,6 @@
-using Femur;
-using GB.Input;
+using Il2Cpp;
+using Il2CppFemur;
+using Il2CppGB.Input;
 using System;
 using System.Collections.Generic;
 using UnityEngine.InputSystem;
@@ -61,12 +62,12 @@ namespace CementTools.Modules.InputModule
         {
         }
 
-        private InputDevice GetLastDetectedInputDevice()
+        private static InputDevice GetLastDetectedInputDevice()
         {
             return MonoSingleton<UnityInputSystemManager>.Instance.GetLastDetectedInputDevice();
         }
 
-        private InputUser GetUserFromDevice(InputDevice device)
+        private static InputUser GetUserFromDevice(InputDevice device)
         {
             foreach (InputUser user in InputUser.all)
             {
@@ -132,7 +133,7 @@ namespace CementTools.Modules.InputModule
             return pressedLastFrame2.Contains(inputPath);
         }
 
-        private int GetIndexOfActor(Actor actor)
+        private static int GetIndexOfActor(Actor actor)
         {
             for (int i = 0; i < Actor.RemoteActors.Count; i++)
             {

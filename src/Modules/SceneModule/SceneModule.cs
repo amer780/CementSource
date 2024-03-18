@@ -1,8 +1,9 @@
-﻿using GB.Config;
-using GB.Core;
-using GB.Core.Loading;
-using GB.Gamemodes;
-using GB.UI;
+﻿using Il2Cpp;
+using Il2CppGB.Config;
+using Il2CppGB.Core;
+using Il2CppGB.Core.Loading;
+using Il2CppGB.Gamemodes;
+using Il2CppGB.UI;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -103,7 +104,7 @@ namespace CementTools.Modules.SceneModule
 
         private bool ascending = true;
 
-        private string[] ScrambleNames(string[] levelNames)
+        private static string[] ScrambleNames(string[] levelNames)
         {
             List<int> notPicked = new List<int>();
             for (int i = 0; i < levelNames.Length; i++) {
@@ -199,7 +200,7 @@ namespace CementTools.Modules.SceneModule
             );
         }
 
-        private bool IsCustom(string name)
+        private static bool IsCustom(string name)
         {
             return CustomSceneManager.SceneExists(name);
         }
@@ -241,7 +242,7 @@ namespace CementTools.Modules.SceneModule
         }
 
 
-        public void Update()
+        public static void Update()
         {
             // Forces the sub title of the loading screen to be set
             if (playingCustomScene)

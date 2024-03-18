@@ -108,12 +108,12 @@ public static class DownloadManager
 
     private static void HandleDownloadMod(string pathToMod)
     {
-        CementTools.Cement.Singleton.totalMods++;
+        CementTools.Cement.Instance.totalMods++;
         ModDownloadHandler handler = new ModDownloadHandler(pathToMod);
 
         CementTools.Cement.Log($"CREATING HANDLER FOR MOD {pathToMod}");
 
-        handler.OnProgress += (float percentage) => CementTools.Cement.Singleton.OnProgress(pathToMod, percentage);
-        handler.Download(callback: CementTools.Cement.Singleton.FinishedDownloadingMod);
+        handler.OnProgress += (float percentage) => CementTools.Cement.Instance.OnProgress(pathToMod, percentage);
+        handler.Download(callback: CementTools.Cement.Instance.FinishedDownloadingMod);
     }
 }

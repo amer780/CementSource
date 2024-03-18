@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using Il2Cpp;
 using System;
 using System.IO;
 using UnityEngine;
@@ -22,7 +23,7 @@ namespace CementTools.Patches
             }
             catch (UnauthorizedAccessException e)
             {
-                Cement.Log(e, BepInEx.Logging.LogLevel.Error);
+                Cement.Log(e);
             }
         }
     }

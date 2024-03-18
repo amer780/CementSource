@@ -398,4 +398,5 @@ FodyWeavers.xsd
 *.sln.iml
 
 # Cement-specific gitignore stuff
-ref/interop/*
+ref/IL2CppAssemblies/*
+ref/net6/*

@@ -8,18 +8,15 @@ namespace CementTools.ModMenuTools
 {
     public class ModMenu
     {
-        private static ModMenu _singleton = null;
         public static ModMenu Singleton
         {
-            get
-            {
-                return _singleton;
-            }
+            get;
+            private set;
         }
 
         private GameObject MODMENU;
 
-        public GameObject modMenuCanvas => MODMENU;
+        public GameObject ModMenuCanvas => MODMENU;
 
         private ModFile[] modFiles;
         private GameObject _modUIPrefab;
@@ -32,11 +29,7 @@ namespace CementTools.ModMenuTools
 
         public ModMenu(AssetBundle bundle)
         {
-            if (_singleton != null)
-            {
-                throw new Exception("An instance of singleton ModMenu already exists.");
-            }
-            _singleton = this;
+            Singleton = this;
 
             SetupPrefabs(bundle);
         }
@@ -111,7 +104,7 @@ namespace CementTools.ModMenuTools
 
         public void SetModActive(ModFile file, bool value)
         {
-            _modUIs[file].modFileToggle.isOn = value;
+            _modUIs[file].modFileToggle.Value.isOn = value;
             _modUIs[file].ToggleMod();
         }
 
@@ -136,7 +129,7 @@ namespace CementTools.ModMenuTools
                 }
             }
             
-            modUI.parameterToggle.isOn = false;
+            modUI.parameterToggle.Value.isOn = false;
             modUI.ToggleParameters();
         }
 
@@ -150,14 +143,14 @@ namespace CementTools.ModMenuTools
             modFile.InvokeChangedValues();
         }
 
-        private void UpdateParameter(ModFile modFile, string key, string rawValue)
+        private static void UpdateParameter(ModFile modFile, string key, string rawValue)
         {
             modFile.SetString(key, rawValue);
         }
 
         public void Enable()
         {
-            Cement.Singleton.UseCementEventSystem();
+            Cement.Instance.UseCementEventSystem();
             MODMENU.SetActive(true);
         }
 
@@ -195,7 +188,7 @@ namespace CementTools.ModMenuTools
             }
             
             ToggleRelevantMods();
-            Cement.Singleton.RevertEventSystem();
+            Cement.Instance.RevertEventSystem();
         }
     }
 }

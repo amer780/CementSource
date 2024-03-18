@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using CementTools;
 
+namespace CementTools;
+
 // helper class which stores information about a certain field in a mod file: the value, and the attributes
 public class ModFileValue
 {
@@ -292,7 +294,7 @@ public class ModFile
     }
 
     // code for actually parsing the parameters
-    private ModFileParameter[] GetParameters(string[] lines)
+    private static ModFileParameter[] GetParameters(string[] lines)
     {
         List<ModFileParameter> modFileParameters = new List<ModFileParameter>();
 

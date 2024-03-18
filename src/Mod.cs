@@ -1,23 +1,44 @@
-﻿using BepInEx.Logging;
-using BepInEx.Unity.IL2CPP;
-using HarmonyLib;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CementTools.Modules.InputModule;
+using CementTools.Modules.NotificationModule;
+using CementTools.Modules.PoolingModule;
+using CementTools.Modules.SceneModule;
+using Il2CppGB.Misc;
+using Il2CppInterop.Runtime.Injection;
+using MelonLoader;
+using UnityEngine;
 
 namespace CementTools
 {
-    public class Mod : BasePlugin
+    public static class BuildInfo
     {
-        internal static ManualLogSource CMTLogger { get; private set; }
+        public const string Name = "Cement";
+        public const string Description = null;
+        public const string Author = "HueSamai";
+        public const string Company = "CementGB";
+        public const string Version = "3.14.0";
+        public const string DownloadLink = null;
+    }
 
-        public override void Load()
+    public class Mod : MelonMod
+    {
+        public override void OnInitializeMelon()
         {
-            Harmony.CreateAndPatchAll(GetType());
-            AddComponent<Cement>();
-            CMTLogger = Log;
+            HarmonyInstance.PatchAll();
+
+            #region register_types_il2cpp
+            ClassInjector.RegisterTypeInIl2Cpp<Cement>();
+            ClassInjector.RegisterTypeInIl2Cpp<CementMod>();
+            ClassInjector.RegisterTypeInIl2Cpp<Pool>();
+            ClassInjector.RegisterTypeInIl2Cpp<Notification>();
+            ClassInjector.RegisterTypeInIl2Cpp<NotificationModule>();
+            ClassInjector.RegisterTypeInIl2Cpp<InputManager>();
+            ClassInjector.RegisterTypeInIl2Cpp<CustomSceneManager>();
+            #endregion
+        }
+
+        public override void OnLateInitializeMelon()
+        {
+            UnityEngine.Object.DontDestroyOnLoad(new GameObject("Cement").AddComponent<Cement>());
         }
     }
 }

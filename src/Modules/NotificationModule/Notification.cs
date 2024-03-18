@@ -1,7 +1,7 @@
 ﻿using Il2CppInterop.Runtime.InteropTypes.Fields;
+using Il2CppTMPro;
 using System;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -46,12 +46,12 @@ namespace CementTools.Modules.NotificationModule
             // null handling
             if (timerBar == null) timerBar = GetComponentInChildren<Slider>();
             if (closeButton == null) closeButton = GetComponentInChildren<Button>();
-            if (title == null) title = transform.Find("Content (1)").GetComponent<TMPro.TMP_Text>();
+            if (title == null) title = transform.Find("Content (1)").GetComponent<TMP_Text>();
             if (content == null) content = transform.Find("Scroll View/Viewport/Content").GetComponent<TMP_Text>();
 
             if (title == null || content == null || closeButton == null || timerBar == null)
             {
-                Cement.Log("Could not find some references in Notification component.", BepInEx.Logging.LogLevel.Error);
+                Cement.Log("Could not find some references in Notification component.");
                 Destroy(gameObject);
                 return;
             }

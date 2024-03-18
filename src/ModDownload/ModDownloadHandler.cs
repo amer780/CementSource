@@ -5,6 +5,8 @@ using System.Net;
 using System.Threading.Tasks;
 using CementTools;
 
+namespace CementTools;
+
 public struct ProcessedModData
 {
     public bool succeeded;
@@ -29,7 +31,7 @@ public class ModDownloadHandler
         _pathToMod = pathToMod;
     }
 
-    private string GetLatestVersion(string url)
+    private static string GetLatestVersion(string url)
     {
         if (url == null)
         {
@@ -48,7 +50,7 @@ public class ModDownloadHandler
         }
     }
 
-    private string ReadMessage(string message)
+    private static string ReadMessage(string message)
     {
         if (message == null)
         {
@@ -74,7 +76,7 @@ public class ModDownloadHandler
         return message;
     }
 
-    private string GetUpdatedCementFile(string linkToFile)
+    private static string GetUpdatedCementFile(string linkToFile)
     {
         WebClient client = new WebClient();
         try {
@@ -89,7 +91,7 @@ public class ModDownloadHandler
         }
     }
 
-    private bool UpdateCementFile(ModFile file)
+    private static bool UpdateCementFile(ModFile file)
     {
         string link = file.GetString("CementFile");
         if (link == null)
@@ -134,10 +136,7 @@ public class ModDownloadHandler
         string latestVersion;
         string modMessage = ReadMessage(modFile.GetString("Message"));
 
-        if (modMessage == null)
-        {
-            modMessage = "Invalid message link.";
-        }
+        modMessage ??= "Invalid message link.";
 
         data.name = name;
         data.message = modMessage;

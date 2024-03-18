@@ -1,6 +1,6 @@
 using Il2CppInterop.Runtime.InteropTypes.Fields;
+using Il2CppTMPro;
 using System;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,8 +8,8 @@ namespace CementTools.ModMenuTools
 {
     public class BoolParameterUI : ParameterUI
     {
-        private Il2CppReferenceField<Toggle> _toggle;
-        private Il2CppReferenceField<TMP_Text> _paramName;
+        public Il2CppReferenceField<Toggle> _toggle;
+        public Il2CppReferenceField<TMP_Text> _paramName;
 
         public BoolParameterUI(IntPtr ptr) : base(ptr)
         {

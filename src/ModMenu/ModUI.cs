@@ -1,9 +1,9 @@
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using CementTools.Modules.NotificationModule;
 using Il2CppInterop.Runtime.InteropTypes.Fields;
 using System;
+using Il2CppTMPro;
 
 namespace CementTools.ModMenuTools
 {
@@ -14,8 +14,8 @@ namespace CementTools.ModMenuTools
 
         ModFile modFile;
         public Il2CppReferenceField<Transform> _parameterParent;
-        public Toggle parameterToggle;
-        public Toggle modFileToggle;
+        public Il2CppReferenceField<Toggle> parameterToggle;
+        public Il2CppReferenceField<Toggle> modFileToggle;
         public Il2CppReferenceField<TMP_Text> _name;
 
         public Transform GetParameterParent()
@@ -26,7 +26,7 @@ namespace CementTools.ModMenuTools
         public void SetValues(ModFile file, bool enabled, string name)
         {
             modFile = file;
-            modFileToggle.isOn = enabled;
+            modFileToggle.Value.isOn = enabled;
             _name.Value.text = name;
         }
 
@@ -50,7 +50,7 @@ namespace CementTools.ModMenuTools
  
         public void ToggleParameters()
         {
-            _parameterParent.Value.gameObject.SetActive(parameterToggle.isOn);
+            _parameterParent.Value.gameObject.SetActive(parameterToggle.Value.isOn);
             UpdateHeight();
         }
 
@@ -64,7 +64,7 @@ namespace CementTools.ModMenuTools
             // if toggling on, it will enable all required mods
             // when toggling off it loops through all the mods dependant on it, and checks if all of them are disabled
             // before disabling it
-            if (modFileToggle.isOn)
+            if (modFileToggle.Value.isOn)
             {
                 bool ran = false;
                 foreach (ModFile required in modFile.requiredMods)
@@ -90,7 +90,7 @@ namespace CementTools.ModMenuTools
                     {
                         CementTools.Cement.Log($"REQUIRED BY: {required.path}");
                         turningOn = true;
-                        modFileToggle.isOn = true;
+                        modFileToggle.Value.isOn = true;
                         modFile.SetBool("Disabled", false);
                         turningOn = false;
 
@@ -102,7 +102,7 @@ namespace CementTools.ModMenuTools
                 }
             }
             
-            modFile.SetBool("Disabled", !modFileToggle.isOn);
+            modFile.SetBool("Disabled", !modFileToggle.Value.isOn);
         }
     }
 }

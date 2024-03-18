@@ -1,17 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-  	<TargetFramework>net6</TargetFramework>
+  	<TargetFramework>net6.0</TargetFramework>
   	<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="BepInEx.AutoPlugin" Version="1.1.0" PrivateAssets="all" />
-  </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all" />
-    <PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-*" />
+    <PackageReference Include="LavaGang.MelonLoader" Version="0.6.1" />
     <PackageReference Include="Iced" Version="1.20.0"></PackageReference>
   </ItemGroup>
 
@@ -19,11 +17,15 @@
     <Reference Include="ref/**/*.dll" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="sdk\build\" />
+  </ItemGroup>
+
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="COPY &quot;$(TargetPath)&quot; &quot;.\build\BepInEx\plugins\Cement\&quot;" />
+    <Exec Command="COPY &quot;$(TargetPath)&quot; &quot;.\build\Mods\&quot;" />
     <ItemGroup>
       <BuildDir Include="build/**/*.*" />
     </ItemGroup>
-    <Copy SourceFiles="@(BuildDir)" DestinationFolder="D:\SteamLibrary\steamapps\common\Gang Beasts\%(RecursiveDir)"/>
+    <Copy SourceFiles="@(BuildDir)" DestinationFolder="D:\SteamLibrary\steamapps\common\Gang Beasts\%(RecursiveDir)" SkipUnchangedFiles="true" />
   </Target>
 </Project>

@@ -14,7 +14,7 @@ namespace CementTools.Modules.NotificationModule
         private static List<Notification> activeNotifications = new List<Notification>();
         private static readonly int maxActiveNotifications = 6;
 
-        private static readonly AssetBundle _bundle = AssetBundle.LoadFromFile(Path.Combine(Cement.CEMENT_PATH, "cement"));
+        private static AssetBundle _bundle => Cement.Bundle;
 
         public static GameObject NotificationPrefab
         {
@@ -68,7 +68,7 @@ namespace CementTools.Modules.NotificationModule
         {
         }
 
-        private void Update()
+        private static void Update()
         {
             foreach (var notification in notificationsQueue.ToArray())
             {
@@ -91,7 +91,7 @@ namespace CementTools.Modules.NotificationModule
             Notification notif = notifObj.GetComponent<Notification>();
             if (notif == null)
             {
-                Cement.Log("Could not find Notification component on prefab. Attempting to create one.", BepInEx.Logging.LogLevel.Warning);
+                Cement.Log("Could not find Notification component on prefab. Attempting to create one.");
                 notif = notifObj.AddComponent<Notification>();
             }
 
