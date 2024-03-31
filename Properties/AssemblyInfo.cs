@@ -11,6 +11,6 @@ using MelonLoader;
 [assembly: AssemblyVersion(CementTools.BuildInfo.Version)]
 [assembly: AssemblyFileVersion(CementTools.BuildInfo.Version)]
 [assembly: MelonInfo(typeof(Mod), CementTools.BuildInfo.Name, CementTools.BuildInfo.Version, CementTools.BuildInfo.Author, CementTools.BuildInfo.DownloadLink)]
-[assembly: MelonColor()]
+[assembly: MelonColor(145, 187, 228, 255)]
 
 [assembly: MelonGame("Boneloaf", "Gang Beasts")]
