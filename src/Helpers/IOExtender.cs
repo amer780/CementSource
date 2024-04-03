@@ -1,4 +1,4 @@
-using System.IO;
+namespace CementTools.Helpers;
 
 public static class IOExtender
 {

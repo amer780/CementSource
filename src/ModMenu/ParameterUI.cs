@@ -1,13 +1,12 @@
-using System;
 using UnityEngine;
 
 namespace CementTools.ModMenuTools
 {
-    public abstract class ParameterUI : MonoBehaviour
+    public class ParameterUI : MonoBehaviour // il2cpp monobehaviours can't be abstract (?)
     {
         public ParameterUI(IntPtr ptr) : base(ptr) { }
 
-        public abstract string GetValue();
-        public abstract void SetValues(string name, string value);
+        public virtual string GetValue() { return ""; }
+        public virtual void SetValues(string name, string value) { }
     }
 }

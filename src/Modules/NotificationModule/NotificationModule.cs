@@ -1,27 +1,25 @@
 ﻿using Il2CppInterop.Runtime;
-using System;
-using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace CementTools.Modules.NotificationModule
 {
-    // The main accessor for Notifications. Simply use NotificationModule.Send(...) to create one.
+    /// <summary>
+    /// The main accessor for Notifications. Simply use NotificationModule.Send(...) to create one.
+    /// </summary>
     public class NotificationModule : CementMod
     {
-        private static List<NotificationInfo> notificationsQueue = new List<NotificationInfo>();
-        private static List<Notification> activeNotifications = new List<Notification>();
+        private static readonly List<NotificationInfo> notificationsQueue = new();
+        private static readonly List<Notification> activeNotifications = new();
         private static readonly int maxActiveNotifications = 6;
 
-        private static AssetBundle _bundle => Cement.Bundle;
+        private static AssetBundle Bundle => Cement.Bundle;
 
         public static GameObject NotificationPrefab
         {
             get
             {
-                if (_notificationGO is null)
-                    _notificationGO = _bundle.LoadAsset("Notification", Il2CppType.Of<GameObject>()).Cast<GameObject>();
+                _notificationGO ??= Bundle.LoadAsset("Notification", Il2CppType.Of<GameObject>()).Cast<GameObject>();
                 return _notificationGO;
             }
             private set
@@ -37,7 +35,7 @@ namespace CementTools.Modules.NotificationModule
             {
                 if (_canvasTransform is null)
                 {
-                    _canvasTransform = _bundle.LoadAsset("NotificationCanvas", Il2CppType.Of<GameObject>()).Cast<GameObject>().transform;
+                    _canvasTransform = Bundle.LoadAsset("NotificationCanvas", Il2CppType.Of<GameObject>()).Cast<GameObject>().transform;
                     DontDestroyOnLoad(_canvasTransform);
                 }
                 return _canvasTransform;
@@ -53,8 +51,7 @@ namespace CementTools.Modules.NotificationModule
         {
             get
             {
-                if (_containerTransform is null)
-                    _containerTransform = NotificationCanvas.GetComponentInChildren<VerticalLayoutGroup>().transform;
+                _containerTransform ??= NotificationCanvas.GetComponentInChildren<VerticalLayoutGroup>().transform;
                 return _containerTransform;
             }
             private set
@@ -80,7 +77,7 @@ namespace CementTools.Modules.NotificationModule
 
         public static void Send(string title="hello title!", string content="hello content!", float timer = 1f)
         {
-            NotificationInfo info = new NotificationInfo(title, content, timer);
+            NotificationInfo info = new(title, content, timer);
 
             notificationsQueue.Add(info);
         }

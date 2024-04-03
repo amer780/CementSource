@@ -1,9 +1,7 @@
+using CementTools.Modules.NotificationModule;
+using Il2CppTMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using CementTools.Modules.NotificationModule;
-using Il2CppInterop.Runtime.InteropTypes.Fields;
-using System;
-using Il2CppTMPro;
 
 namespace CementTools.ModMenuTools
 {
@@ -13,10 +11,18 @@ namespace CementTools.ModMenuTools
         public ModUI(IntPtr ptr) : base(ptr) { }
 
         ModFile modFile;
-        public Il2CppReferenceField<Transform> _parameterParent;
-        public Il2CppReferenceField<Toggle> parameterToggle;
-        public Il2CppReferenceField<Toggle> modFileToggle;
-        public Il2CppReferenceField<TMP_Text> _name;
+        public Transform _parameterParent;
+        public Toggle parameterToggle;
+        public Toggle modFileToggle;
+        public TMP_Text _name;
+
+        private void Start()
+        {
+            _parameterParent = Transform.FindRelativeTransformWithPath(transform, "./ModFileUI/Parameters", false);
+            parameterToggle = Transform.FindRelativeTransformWithPath(transform, "./ModFileUI/ToggleParams", false).GetComponent<Toggle>();
+            modFileToggle = Transform.FindRelativeTransformWithPath(transform, "./ModFileUI/Enable", false).GetComponent<Toggle>();
+            _name = Transform.FindRelativeTransformWithPath(transform, "./ModFileUI/ModName", false).GetComponent<TMP_Text>();
+        }
 
         public Transform GetParameterParent()
         {
@@ -26,8 +32,8 @@ namespace CementTools.ModMenuTools
         public void SetValues(ModFile file, bool enabled, string name)
         {
             modFile = file;
-            modFileToggle.Value.isOn = enabled;
-            _name.Value.text = name;
+            modFileToggle.isOn = enabled;
+            _name.text = name;
         }
 
         // update height is used, because when toggling the mod, the UI's height doesn't automatically shrink or grow
@@ -35,9 +41,9 @@ namespace CementTools.ModMenuTools
         {
             RectTransform parentTransform = (RectTransform)(transform.parent);
             float y;
-            if (_parameterParent.Value.gameObject.activeSelf)
+            if (_parameterParent.gameObject.activeSelf)
             {
-                y = 100f + 110f * _parameterParent.Value.childCount;
+                y = 100f + 110f * _parameterParent.childCount;
             }
             else
             {
@@ -50,7 +56,7 @@ namespace CementTools.ModMenuTools
  
         public void ToggleParameters()
         {
-            _parameterParent.Value.gameObject.SetActive(parameterToggle.Value.isOn);
+            _parameterParent.gameObject.SetActive(parameterToggle.isOn);
             UpdateHeight();
         }
 
@@ -64,7 +70,7 @@ namespace CementTools.ModMenuTools
             // if toggling on, it will enable all required mods
             // when toggling off it loops through all the mods dependant on it, and checks if all of them are disabled
             // before disabling it
-            if (modFileToggle.Value.isOn)
+            if (modFileToggle.isOn)
             {
                 bool ran = false;
                 foreach (ModFile required in modFile.requiredMods)
@@ -90,7 +96,7 @@ namespace CementTools.ModMenuTools
                     {
                         CementTools.Cement.Log($"REQUIRED BY: {required.path}");
                         turningOn = true;
-                        modFileToggle.Value.isOn = true;
+                        modFileToggle.isOn = true;
                         modFile.SetBool("Disabled", false);
                         turningOn = false;
 
@@ -102,7 +108,7 @@ namespace CementTools.ModMenuTools
                 }
             }
             
-            modFile.SetBool("Disabled", !modFileToggle.Value.isOn);
+            modFile.SetBool("Disabled", !modFileToggle.isOn);
         }
     }
 }

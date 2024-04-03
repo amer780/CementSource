@@ -1,11 +1,11 @@
+using CementTools.Helpers;
 using CementTools.ModMenuTools;
 using CementTools.Modules.InputModule;
 using CementTools.Modules.NotificationModule;
 using CementTools.Modules.PoolingModule;
 using CementTools.Modules.SceneModule;
 using Il2CppInterop.Runtime;
-using System;
-using System.IO;
+using Il2CppInterop.Runtime.Injection;
 using System.Reflection;
 using UnityEngine;
 
@@ -26,25 +26,25 @@ namespace CementTools.ModLoading
         public static void Setup()
         {
             modHolder = new GameObject("Cement Mods");
-            GameObject.DontDestroyOnLoad(modHolder);
+            UnityEngine.Object.DontDestroyOnLoad(modHolder);
 
             LoadAllModules();
 
-            foreach (string subDirectory in Directory.GetDirectories(CementTools.Cement.MODBIN_PATH))
+            foreach (string subDirectory in Directory.GetDirectories(Cement.MODBIN_PATH))
             {
-                CementTools.Cement.Log($"PROCESSING SUB {subDirectory}");
+                Cement.Log($"PROCESSING SUB {subDirectory}");
 
-                ModFile modFile = CementTools.Cement.Instance.GetModFileFromName(subDirectory);
-                CementTools.Cement.Log("CREATED MOD FILE. LOADING DLLS...");
+                ModFile modFile = Cement.Instance.GetModFileFromName(subDirectory);
+                Cement.Log("CREATED MOD FILE. LOADING DLLS...");
                 LoadModAssemblies(subDirectory, modFile);
-                CementTools.Cement.Log("FINISHED LOADING DLLS");
+                Cement.Log("FINISHED LOADING DLLS");
                 modFile.GotLoaded();
             }
 
-            CementTools.Cement.Instance.CreateSummary();
-            CementTools.Cement.Log("SETTING UP MOD MENU");
+            Cement.Instance.CreateSummary();
+            Cement.Log("SETTING UP MOD MENU");
             ModMenu.Singleton.SetupModMenu();
-            CementTools.Cement.Log("DONE SETTING UP MOD MENU");
+            Cement.Log("DONE SETTING UP MOD MENU");
         }
 
         private static void LoadModAssemblies(string directory, ModFile modFile)
@@ -57,7 +57,7 @@ namespace CementTools.ModLoading
                     Assembly assembly = Assembly.LoadFile(path);
                     foreach (AssemblyName referencedAssembly in assembly.GetReferencedAssemblies())
                     {
-                        foreach (string sub in Directory.GetDirectories(CementTools.Cement.MODBIN_PATH))
+                        foreach (string sub in Directory.GetDirectories(Cement.MODBIN_PATH))
                         {
                             string assemblyPath = Path.Combine(sub, referencedAssembly.Name + ".dll");
                             if (File.Exists(assemblyPath))
@@ -70,38 +70,39 @@ namespace CementTools.ModLoading
                     }
                     foreach (Type type in assembly.GetTypes())
                     {
-                        if (typeof(CementMod).IsAssignableFrom(type) || type.IsAssignableFrom(typeof(Cement)))
+                        if (typeof(CementMod).IsAssignableFrom(type) || type.IsAssignableFrom(typeof(CementMod)))
                         {
                             try
                             {
-                                CementMod mod = InstantiateMod(Il2CppType.From(type));
+                                ClassInjector.RegisterTypeInIl2Cpp(type);
+                                CementMod mod = InstantiateMod(type);
                                 mod.modDirectoryPath = directory;
                                 mod.modFile = modFile;
                                 mod.enabled = !modFile.GetBool("Disabled");
                                 CementModSingleton.Add(type, mod);
-                                CementTools.Cement.Log($"Succesfully loaded {type.Name}.");
+                                Cement.Log($"Succesfully loaded {type.Name}.");
                             }
                             catch (Exception e)
                             {
-                                CementTools.Cement.Log($"Error occurred while loading {type.Name}: {e}");
-                                CementTools.Cement.Instance.AddToSummary(CementTools.Cement.FAILED_TAG);
-                                CementTools.Cement.Instance.AddToSummary($"Error occurred while loading {type.Name}: {e}\n");
+                                Cement.Log($"Error occurred while loading {type.Name}: {e}");
+                                Cement.Instance.AddToSummary(Cement.FAILED_TAG);
+                                Cement.Instance.AddToSummary($"Error occurred while loading {type.Name}: {e}\n");
                             }
                         }
                     }
                 }
                 catch (Exception e)
                 {
-                    CementTools.Cement.Log($"Error loading assembly {path}. {e}");
-                    CementTools.Cement.Instance.AddToSummary(CementTools.Cement.FAILED_TAG);
-                    CementTools.Cement.Instance.AddToSummary($"Error occurred while loading assembly {IOExtender.GetFileName(path)}.");
+                    Cement.Log($"Error loading assembly {path}. {e}");
+                    Cement.Instance.AddToSummary(Cement.FAILED_TAG);
+                    Cement.Instance.AddToSummary($"Error occurred while loading assembly {IOExtender.GetFileName(path)}.");
                 }
             }
         }
 
-        private static CementMod InstantiateMod(Il2CppSystem.Type mod)
+        private static CementMod InstantiateMod(Type mod)
         {
-            return modHolder.AddComponent(mod).Cast<CementMod>();
+            return modHolder.AddComponent(Il2CppType.From(mod)).Cast<CementMod>();
         }
     }
 }

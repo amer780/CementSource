@@ -7,8 +7,8 @@ namespace CementTools.ModMenuTools
 {
     public class BoolParameterUI : ParameterUI
     {
-        private Toggle _toggle;
-        private TMP_Text _paramName;
+        public Toggle _toggle;
+        public TMP_Text _paramName;
 
         public override string GetValue()
         {

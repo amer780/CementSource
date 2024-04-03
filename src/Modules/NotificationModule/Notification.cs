@@ -1,7 +1,4 @@
-﻿using Il2CppInterop.Runtime.InteropTypes.Fields;
-using Il2CppTMPro;
-using System;
-using System.Collections.Generic;
+﻿using Il2CppTMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -11,6 +8,8 @@ namespace CementTools.Modules.NotificationModule
     // Class for individual "toasts", or notifications, or popups, or whatever you wanna call em
     public class Notification : MonoBehaviour
     {
+        public Notification(IntPtr ptr) : base(ptr) { }
+
         public static event Action<Notification> OnNotificationStart;
         public static event Action<Notification, bool> OnNotificationClosed;
         public static event Action<Notification, ContentType> OnTextUpdated;
@@ -25,10 +24,10 @@ namespace CementTools.Modules.NotificationModule
 
         private float curTime = 1f;
 
-        public Il2CppReferenceField<Button> closeButton;
-        public Il2CppReferenceField<Slider> timerBar;
-        public Il2CppReferenceField<TMP_Text> title;
-        public Il2CppReferenceField<TMP_Text> content;
+        public Button closeButton;
+        public Slider timerBar;
+        public TMP_Text title;
+        public TMP_Text content;
 
         public enum ContentType
         {
@@ -44,10 +43,10 @@ namespace CementTools.Modules.NotificationModule
             curTime = time;
 
             // null handling
-            if (timerBar == null) timerBar = GetComponentInChildren<Slider>();
-            if (closeButton == null) closeButton = GetComponentInChildren<Button>();
-            if (title == null) title = transform.Find("Content (1)").GetComponent<TMP_Text>();
-            if (content == null) content = transform.Find("Scroll View/Viewport/Content").GetComponent<TMP_Text>();
+            timerBar ??= GetComponentInChildren<Slider>();
+            closeButton ??= GetComponentInChildren<Button>();
+            title ??= transform.Find("Content (1)").GetComponent<TMP_Text>();
+            content ??= transform.Find("Scroll View/Viewport/Content").GetComponent<TMP_Text>();
 
             if (title == null || content == null || closeButton == null || timerBar == null)
             {
@@ -56,7 +55,7 @@ namespace CementTools.Modules.NotificationModule
                 return;
             }
 
-            closeButton.Value?.onClick.AddListener((UnityAction)(() => CloseNotification()));
+            closeButton?.onClick.AddListener((UnityAction)(() => CloseNotification()));
 
             OnNotificationStart?.Invoke(this);
         }
@@ -64,17 +63,17 @@ namespace CementTools.Modules.NotificationModule
         private void Update()
         {
             // only update title's actual UI text if its different than titleText
-            if (title != null && title.Value.text != titleText)
+            if (title != null && title.text != titleText)
                 UpdateText(ContentType.Title);
             // only update content's actual UI text if its different than contentText
-            if (content != null && content.Value.text != contentText)
+            if (content != null && content.text != contentText)
                 UpdateText(ContentType.Content);
 
             // update timerBar
             if (timerBar == null) return;
             if (curTime > 0f) curTime -= Time.deltaTime; else
                 CloseNotification(false);
-            if (timerBar.Value.value != curTime / time) timerBar.Value.value = curTime / time;
+            if (timerBar.value != curTime / time) timerBar.value = curTime / time;
         }
 
         private void UpdateText(ContentType type)
@@ -82,12 +81,12 @@ namespace CementTools.Modules.NotificationModule
             switch(type)
             {
                 case ContentType.Title:
-                    if (title != null) title.Value.text = titleText;
+                    if (title != null) title.text = titleText;
                     OnTextUpdated?.Invoke(this, ContentType.Title);
 
                     break;
                 case ContentType.Content:
-                    if (content != null) content.Value.text = contentText;
+                    if (content != null) content.text = contentText;
                     OnTextUpdated?.Invoke(this, ContentType.Title);
 
                     break;

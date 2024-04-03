@@ -1,36 +1,39 @@
-public static class LinkHelper
+namespace CementTools.Helpers
 {
-    public static bool IsLinkToMod(string link)
+    public static class LinkHelper
     {
-        string[] split = link.Split('.');
-        return split[split.Length - 1] == CementTools.Cement.MOD_FILE_EXTENSION;
-    }
-
-    public static string GetNameFromLink(string link)
-    {
-        string[] split = link.Split('/');
-        return ToUsableName(split[split.Length - 1]);
-    }
-
-    public static bool IsLink(string possibleLink)
-    {
-        if (possibleLink.IndexOf("https://") == 0)
+        public static bool IsLinkToMod(string link)
         {
-            return true;
-        }
-        return false;
-    }
-
-    const string BANNED = "/<>:\"\\|?*";
-    public static string ToUsableName(string name)
-    {
-        string newName = name;
-        foreach (char c in BANNED)
-        {
-            newName = newName.Replace(c, '_');
+            string[] split = link.Split('.');
+            return split[^1] == Cement.MOD_FILE_EXTENSION;
         }
 
-        newName = URLManager.URLToNormal(newName);
-        return newName;
+        public static string GetNameFromLink(string link)
+        {
+            string[] split = link.Split('/');
+            return ToUsableName(split[^1]);
+        }
+
+        public static bool IsLink(string possibleLink)
+        {
+            if (possibleLink.IndexOf("https://") == 0)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        const string BANNED = "/<>:\"\\|?*";
+        public static string ToUsableName(string name)
+        {
+            string newName = name;
+            foreach (char c in BANNED)
+            {
+                newName = newName.Replace(c, '_');
+            }
+
+            newName = URLManager.URLToNormal(newName);
+            return newName;
+        }
     }
 }

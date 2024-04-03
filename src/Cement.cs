@@ -1,6 +1,6 @@
+using CementTools.Helpers;
 using CementTools.ModLoading;
 using CementTools.ModMenuTools;
-using HarmonyLib;
 using Il2Cpp;
 using Il2CppInterop.Runtime;
 using Il2CppTMPro;
@@ -10,14 +10,12 @@ using System.Collections;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Net;
-using System.Reflection;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using UnityEngine.Yoga;
 
 namespace CementTools
 {
@@ -75,7 +73,7 @@ namespace CementTools
         {
             get
             {
-                string path = Path.GetFullPath(Path.Combine(CEMENT_PATH, "CementMods"));
+                string path = Path.GetFullPath(Path.Combine(MelonEnvironment.GameRootDirectory, "CementMods"));
                 if (!Directory.Exists(path))
                     Directory.CreateDirectory(path);
 
@@ -126,7 +124,7 @@ namespace CementTools
         private EventSystem _cementEventSystem;
         private bool _usingCementEventSystem;
 
-        // this is where the main processing happens, so look here to see how Cement works.
+        // This is where mod processing begins.
         public void Awake()
         {
             Instance = this;
@@ -146,6 +144,11 @@ namespace CementTools
         {
             _hasInternet = IsConnectedToWifi();
             Cement.Log($"IS CONNECTED TO WIFI? {_hasInternet}");
+            /* 
+            NOTE: instead of
+            SceneManager.sceneLoaded += OnSceneLoaded 
+            do: 
+            */
             SceneManager.add_sceneLoaded((UnityEngine.Events.UnityAction<Scene, LoadSceneMode>)OnSceneLoaded);
 
             try
@@ -255,7 +258,7 @@ namespace CementTools
         {
             GameObject local = null;
 
-            GameObject tryAgain()
+            static GameObject tryAgain()
             {
                 // please for the love of god somebody fix this for me
                 var textReplacerObjects = FindObjectsOfType(Il2CppType.Of<TextReplacer>()).ToList();
@@ -508,11 +511,9 @@ namespace CementTools
         {
             try
             {
-                using (var client = new WebClient())
-                using (var stream = client.OpenRead("http://www.google.com"))
-                {
-                    return true;
-                }
+                using var client = new WebClient();
+                using var stream = client.OpenRead("http://www.google.com");
+                return true;
             }
             catch
             {

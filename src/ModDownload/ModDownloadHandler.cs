@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
+using CementTools.Helpers;
 using CementTools;
 
 namespace CementTools;

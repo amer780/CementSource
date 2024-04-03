@@ -1,9 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using CementTools;
-
 namespace CementTools;
 
 // helper class which stores information about a certain field in a mod file: the value, and the attributes
@@ -213,7 +207,7 @@ public class ModFile
         }
         else
         {
-            SetValue(key, new ModFileValue(value, new string[] {}));
+            SetValue(key, new ModFileValue(value, Array.Empty<string>()));
         }
     }
 

@@ -4,8 +4,6 @@ using Il2CppGB.Core;
 using Il2CppGB.Core.Loading;
 using Il2CppGB.Gamemodes;
 using Il2CppGB.UI;
-using System;
-using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.SceneManagement;

@@ -1,6 +1,4 @@
 using Il2CppInterop.Runtime;
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -67,7 +65,7 @@ namespace CementTools.ModMenuTools
 
             _contentParent = MODMENU.transform.Find("Scroll View/Viewport/Content");
 
-            _modUIPrefab = bundle.LoadAsset("ModFileContainer", Il2CppType.Of<GameObject>()).Cast<GameObject>();
+            _modUIPrefab = bundle.LoadAsset("ModFileContainer").Cast<GameObject>();
 
             _parameterPrefabs["String"] = bundle.LoadAsset("StringParameterUI", Il2CppType.Of<GameObject>()).Cast<GameObject>();
             _parameterPrefabs["Float"] = bundle.LoadAsset("FloatParameterUI", Il2CppType.Of<GameObject>()).Cast<GameObject>();
@@ -104,13 +102,13 @@ namespace CementTools.ModMenuTools
 
         public void SetModActive(ModFile file, bool value)
         {
-            _modUIs[file].modFileToggle.Value.isOn = value;
+            _modUIs[file].modFileToggle.isOn = value;
             _modUIs[file].ToggleMod();
         }
 
         private void CreateUIForMod(ModFile file)
         {
-            ModUI modUI = GameObject.Instantiate(_modUIPrefab, _contentParent).GetComponentInChildren<ModUI>();
+            ModUI modUI = UnityEngine.Object.Instantiate(_modUIPrefab, _contentParent).GetComponentInChildren<ModUI>();
             modUI.SetValues(file, !file.GetBool("Disabled"), file.GetString("Name"));
 
             _modUIs[file] = modUI;
@@ -129,7 +127,7 @@ namespace CementTools.ModMenuTools
                 }
             }
             
-            modUI.parameterToggle.Value.isOn = false;
+            modUI.parameterToggle.isOn = false;
             modUI.ToggleParameters();
         }
 

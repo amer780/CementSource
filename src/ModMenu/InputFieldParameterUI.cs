@@ -1,6 +1,6 @@
+using Il2CppInterop.Runtime.Injection;
 using Il2CppInterop.Runtime.InteropTypes.Fields;
 using Il2CppTMPro;
-using System;
 
 namespace CementTools.ModMenuTools
 {
@@ -8,18 +8,29 @@ namespace CementTools.ModMenuTools
     {
         public InputFieldParameterUI(IntPtr ptr) : base(ptr) { }
 
-        public Il2CppReferenceField<TMP_InputField> _inputField;
-        public Il2CppReferenceField<TMP_Text> _paramName;
+        public InputFieldParameterUI() : base(ClassInjector.DerivedConstructorPointer<InputFieldParameterUI>())
+        {
+            ClassInjector.DerivedConstructorBody(this);
+        }
+
+        public TMP_InputField _inputField;
+        public TMP_Text _paramName;
+
+        private void Start()
+        {
+            _inputField = GetComponentInChildren<TMP_InputField>();
+            _paramName = GetComponentInChildren<TMP_Text>();
+        }
 
         public override string GetValue()
         {
-            return _inputField.Value.text;
+            return _inputField.text;
         }
 
         public override void SetValues(string name, string value)
         {
-            _inputField.Value.text = value;
-            _paramName.Value.text = name;
+            _inputField.text = value;
+            _paramName.text = name;
         }
     }
 }

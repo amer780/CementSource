@@ -1,23 +1,32 @@
-using Il2CppInterop.Runtime.InteropTypes.Fields;
+using Il2CppInterop.Runtime.Injection;
 using Il2CppTMPro;
-using System;
-using UnityEngine;
 using UnityEngine.UI;
 
 namespace CementTools.ModMenuTools
 {
     public class BoolParameterUI : ParameterUI
     {
-        public Il2CppReferenceField<Toggle> _toggle;
-        public Il2CppReferenceField<TMP_Text> _paramName;
+        public Toggle _toggle;
+        public TMP_Text _paramName;
 
         public BoolParameterUI(IntPtr ptr) : base(ptr)
         {
         }
 
+        public BoolParameterUI() : base(ClassInjector.DerivedConstructorPointer<BoolParameterUI>())
+        {
+            ClassInjector.DerivedConstructorBody(this);
+        }
+
+        private void Start()
+        {
+            _paramName = GetComponentInChildren<TMP_Text>();
+            _toggle = GetComponentInChildren<Toggle>();
+        }
+
         public override string GetValue()
         {
-            if (_toggle.Value.isOn)
+            if (_toggle.isOn)
             {
                 return "true";
             }
@@ -28,14 +37,14 @@ namespace CementTools.ModMenuTools
         {
             if (value == "true")
             {
-                _toggle.Value.isOn = true;
+                _toggle.isOn = true;
             }
             else
             {   
-                _toggle.Value.isOn = false;
+                _toggle.isOn = false;
             }
             
-            _paramName.Value.text = name;
+            _paramName.text = name;
         }
     }
 }

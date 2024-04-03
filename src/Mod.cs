@@ -1,8 +1,8 @@
-﻿using CementTools.Modules.InputModule;
+﻿using CementTools.ModMenuTools;
+using CementTools.Modules.InputModule;
 using CementTools.Modules.NotificationModule;
 using CementTools.Modules.PoolingModule;
 using CementTools.Modules.SceneModule;
-using Il2CppGB.Misc;
 using Il2CppInterop.Runtime.Injection;
 using MelonLoader;
 using UnityEngine;
@@ -33,12 +33,16 @@ namespace CementTools
             ClassInjector.RegisterTypeInIl2Cpp<NotificationModule>();
             ClassInjector.RegisterTypeInIl2Cpp<InputManager>();
             ClassInjector.RegisterTypeInIl2Cpp<CustomSceneManager>();
+            ClassInjector.RegisterTypeInIl2Cpp<ModUI>();
+            ClassInjector.RegisterTypeInIl2Cpp<ParameterUI>();
+            ClassInjector.RegisterTypeInIl2Cpp<InputFieldParameterUI>();
+            ClassInjector.RegisterTypeInIl2Cpp<BoolParameterUI>();
             #endregion
         }
 
         public override void OnLateInitializeMelon()
         {
-            UnityEngine.Object.DontDestroyOnLoad(new GameObject("Cement").AddComponent<Cement>());
+            UnityEngine.Object.DontDestroyOnLoad(new GameObject("CementGlobal").AddComponent<Cement>());
         }
     }
 }
