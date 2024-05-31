@@ -2,6 +2,12 @@
 
 This is the source code for the Cement Mod Loader for Gang Beasts. **To install the latest release of Cement, go to [the Cement website](https://cementgb.github.io)** and download through the installer.
 
+## How to contribute
+
+Git clone this into an empty directory, and run `nuget restore` in the root of the directory, to install all required packages. To build a specific project, you can run `dotnet build <path to whichever project you want to build>` or `dotnet build` to build the entire solution.
+
+For more info on contributing checkout [this]() wiki article.
+
 ## Outline
 
 ### cement

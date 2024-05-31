@@ -1,8 +1,20 @@
-﻿using System.Diagnostics;
-using System.Drawing.Text;
-using System.Net;
-using System.Runtime.InteropServices;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Diagnostics;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Net;
+using System.IO;
+using System.Threading;
+using System.Drawing.Text;
+using System.Runtime.InteropServices;
 
 namespace CementInstaller
 {
@@ -21,6 +33,8 @@ namespace CementInstaller
             "The installer will automatically close it.";
 
         string downloadDots = ".";
+
+        string pathToGangBeardExe;
 
         public MainForm()
         {
@@ -66,14 +80,14 @@ namespace CementInstaller
             infoText.ForeColor = Color.FromArgb(203, 246, 255);
             retryButton.Font = new Font(pfc.Families[0], retryButton.Font.Size);
             retryButton.ForeColor = Color.FromArgb(203, 246, 255);
-
         }
 
         private void SetValues()
         {
             BackColor = Color.FromArgb(146, 187, 228);
+            pictureBox1.BackColor = Color.Transparent;
+            infoText.BackColor = Color.Transparent;
             retryButton.BackColor = Color.FromArgb(1, 66, 87);
-            SetFont();
         }
 
         private void DownloadFile(string path, string link)
@@ -91,14 +105,16 @@ namespace CementInstaller
 
         private void DownloadFinished()
         {
-            ChangeText(MSG_DONE);
+            //ChangeText(MSG_DONE);
+            Process.Start(pathToGangBeardExe);
+            Close();
             downloadTimer.Enabled = false;
         }
 
         private void DownloadTree(string url, string gangBeastsPath, string basePath = "")
         {
-            try
-            {
+            /*try
+            {*/
                 // get tree data
                 WebClient client = new WebClient();
                 client.Proxy = null;
@@ -128,39 +144,66 @@ namespace CementInstaller
                 {
                     Invoke(new MethodInvoker(() => DownloadFinished()));
                 }
+            //}
+            //catch
+            /*{
+                Invoke(new MethodInvoker(delegate () {
+                    ChangeText(MSG_ERROR);
+                    retryButton.Visible = true;
+                }));
+            }*/
+        }
+
+        private void TryInstallLoader()
+        {
+            try
+            {
+
+
+                Process GangBeard = GetGangBeastsProcess();
+                if (GangBeard != null)
+                {
+                    retryButton.Visible = false;
+                    string pathToGangBeard = Path.Combine(GangBeard.MainModule.FileName, "..");
+                    pathToGangBeardExe = GangBeard.MainModule.FileName;
+                    GangBeard.Kill();
+                    GangBeard.Dispose();
+                    Console.WriteLine($"Found gang beard at {pathToGangBeard}");
+                    infoText.Text = "Downloading";
+                    downloadTimer.Enabled = true;
+                    new Thread(() => DownloadTree(REPO_API_LINK, pathToGangBeard)).Start();
+                }
+                else
+                {
+                    ChangeText(MSG_GANG_BEASTS_NOT_OPEN);
+                    retryButton.Visible = true;
+                }
+
             }
             catch
             {
                 Invoke(new MethodInvoker(delegate () {
-                    ChangeText(MSG_ERROR);
+                    ChangeText("Installer failed. Try right clicking and running the .exe as an administrator.");
                     retryButton.Visible = true;
                 }));
             }
         }
 
-        private void TryInstallLoader()
-        {
-            Process GangBeard = GetGangBeastsProcess();
-            if (GangBeard != null)
-            {
-                retryButton.Visible = false;
-                string pathToGangBeard = Path.Combine(GangBeard.MainModule.FileName, "..");
-                GangBeard.Kill();
-                GangBeard.Dispose();
-                Console.WriteLine($"Found gang beard at {pathToGangBeard}");
-                infoText.Text = "Downloading";
-                downloadTimer.Enabled = true;
-                new Thread(() => DownloadTree(REPO_API_LINK, pathToGangBeard)).Start();
-            }
-            else
-            {
-                ChangeText(MSG_GANG_BEASTS_NOT_OPEN);
-                retryButton.Visible = true;
-            }
-        }
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            string[] args = Environment.GetCommandLineArgs();
+            if (args.Contains("--no-install"))
+            {
+                Process GangBeard = GetGangBeastsProcess();
+                if (GangBeard != null)
+                {
+                    GangBeard.Kill();
+                    pathToGangBeardExe = GangBeard.MainModule.FileName;
+                    DownloadFinished();
+                    return;
+                }
+            }
             SetValues();
             TryInstallLoader();
         }
