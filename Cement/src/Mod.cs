@@ -1,7 +1,9 @@
 ﻿using MelonLoader;
 using MelonLoader.Utils;
+using System;
 using System.IO;
 using System.Net.Http;
+using UnityEngine;
 
 namespace CementGB;
 
@@ -12,12 +14,13 @@ public static class BuildInfo
     public const string Description = null;
     public const string Company = "CementGB";
     public const string Version = "4.0.0";
-    public const string DownloadLink = "https://api.github.com/repos/HueSamai/CementSource/releases/";
+    public const string DownloadLink = "https://api.github.com/repos/HueSamai/CementSource/releases/latest";
 }
 
 public class Mod : MelonPlugin
 {
     public static readonly string userDataPath = Path.Combine(MelonEnvironment.UserDataDirectory, "CementGB");
+    public static readonly string cementBinPath = Path.Combine(userDataPath, "bin");
 
     public static bool OfflineMode => _offlineModePref.GetValueAsString() == "true";
 
@@ -30,20 +33,21 @@ public class Mod : MelonPlugin
     {
         base.OnPreInitialization();
 
-        
+        Directory.CreateDirectory(userDataPath);
+        _melonCat.SetFilePath(Path.Combine(userDataPath, "CementPrefs.cfg"));
+
+        Directory.CreateDirectory(cementBinPath);
+    }
+
+    public override void OnApplicationStarted()
+    {
+        base.OnApplicationStarted();
     }
 
     public override void OnInitializeMelon()
     {
         base.OnInitializeMelon();
 
-        Directory.CreateDirectory(userDataPath);
-    }
-
-    public override void OnPreModsLoaded()
-    {
-        base.OnPreModsLoaded();
-
-        
+        HarmonyInstance.PatchAll(MelonAssembly.Assembly);
     }
 }

@@ -1,4 +1,8 @@
-﻿using System;
+﻿using MelonLoader;
+using System;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using UnityEngine;
 
 namespace CementGB.Utilities;
@@ -30,5 +34,32 @@ public static class AssetBundleUtilities
             result.hideFlags = HideFlags.DontUnloadUnusedAsset;
             onLoaded?.Invoke(result);
         }));
+    }
+
+    internal static AssetBundle? LoadEmbeddedAssetBundle(Assembly assembly, string name)
+    {
+        string[] manifestResources = assembly.GetManifestResourceNames();
+        AssetBundle? bundle = null;
+        if (manifestResources.Contains(name))
+        {
+            Melon<Mod>.Logger.Msg($"Loading embedded resource data {name}...");
+            using var str = assembly.GetManifestResourceStream(name);
+            if (str is null) 
+            {
+                Melon<Mod>.Logger.Warning($"Manifest resource returned null stream. How did this happen?");
+                return null; 
+            }
+
+            using var memoryStream = new MemoryStream();
+
+            str.CopyTo(memoryStream);
+            Melon<Mod>.Logger.Msg("Done!");
+            byte[] resource = memoryStream.ToArray();
+
+            Melon<Mod>.Logger.Msg($"Loading assetBundle from data {name}, please be patient...");
+            bundle = AssetBundle.LoadFromMemory(resource);
+            Melon<Mod>.Logger.Msg("Done!");
+        }
+        return bundle;
     }
 }
