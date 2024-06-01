@@ -1,36 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
-using System.Text;
+using System.Net.Http;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Net;
-using System.IO;
-using System.Threading;
-using System.Drawing.Text;
-using System.Runtime.InteropServices;
 
 namespace CementInstaller
 {
     public partial class MainForm : Form
     {
-        public const string BASE_DOWNLOAD_URL = "https://github.com/CementGB/cementresources/raw/main/";
-        public const string REPO_API_LINK = "https://api.github.com/repos/CementGB/cementresources/git/trees/main";
-
+        public const string REPO_API_LINK = "https://api.github.com/repos/HueSamai/CementSource/releases/latest";
         public const string MSG_DONE = "Done downloading Cement! When you want to install an update, " +
                     "just run this application again. You can now close me, and reopen Gang Beasts.";
-
-        public const string MSG_ERROR = "Whoops! An error occurred while trying to download Cement. " +
-                        "This could be because you are not connected to the internet.";
-
-        public const string MSG_GANG_BEASTS_NOT_OPEN = "Please open Gang Beasts, then click the retry button. " +
-            "The installer will automatically close it.";
+        public const string MSG_ERROR = "Whoops! An error occurred while trying to download Cement.\nThis could be because you are not connected to the internet.";
+        public const string MSG_GANG_BEASTS_NOT_OPEN = "Please open Gang Beasts, then click the retry button.\nThe installer will automatically close it.";
+        public const string INSTALLER_CONTENTS_FILE_NAME = "CementInstallerContents.zip";
 
         string downloadDots = ".";
 
@@ -41,7 +29,7 @@ namespace CementInstaller
             InitializeComponent();
         }
 
-        private Process GetGangBeastsProcess()
+        private static Process GetGangBeastsProcess()
         {
             foreach (Process process in Process.GetProcesses())
             {
@@ -53,12 +41,12 @@ namespace CementInstaller
 
             return null;
         }
-
+/*
         private void SetFont()
         {
             //https://stackoverflow.com/questions/1297264/using-custom-fonts-on-a-label-on-winforms
             //Create your private font collection object.
-            PrivateFontCollection pfc = new PrivateFontCollection();
+            PrivateFontCollection pfc = new();
 
             //Select your font from the resources.
             //My font here is "Digireu.ttf"
@@ -81,26 +69,13 @@ namespace CementInstaller
             retryButton.Font = new Font(pfc.Families[0], retryButton.Font.Size);
             retryButton.ForeColor = Color.FromArgb(203, 246, 255);
         }
-
+*/
         private void SetValues()
         {
             BackColor = Color.FromArgb(146, 187, 228);
             pictureBox1.BackColor = Color.Transparent;
             infoText.BackColor = Color.Transparent;
             retryButton.BackColor = Color.FromArgb(1, 66, 87);
-        }
-
-        private void DownloadFile(string path, string link)
-        {
-            WebClient client = new WebClient();
-            client.Proxy = null;
-            client.DownloadFile(new Uri(link), path);
-            client.Dispose();
-        }
-
-        private void ChangeText(string text)
-        {
-            infoText.Text = text;
         }
 
         private void DownloadFinished()
@@ -111,55 +86,62 @@ namespace CementInstaller
             downloadTimer.Enabled = false;
         }
 
-        private void DownloadTree(string url, string gangBeastsPath, string basePath = "")
+        private async Task DownloadLatestCementRelease(string url, string gangBeastsPath, string basePath = "")
         {
-            /*try
-            {*/
-                // get tree data
-                WebClient client = new WebClient();
-                client.Proxy = null;
-                client.Headers.Add("User-Agent", "request");
-                string response = client.DownloadString(url);
+            var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("User-Agent", "request");
+
+            try
+            {
+                if (!Uri.TryCreate(url, UriKind.Absolute, out var uri) || uri.Host != "api.github.com") return;
+
+                var response = await client.GetStringAsync(uri);
                 Console.WriteLine(response);
+
+                var releaseResponseObj = JsonNode.Parse(response).AsObject();
+                var assetsArray = releaseResponseObj["assets"]?.AsArray();
+                if (assetsArray is null) throw new NullReferenceException("assetsArray was not found.");
+                foreach (var asset in assetsArray) 
+                {
+                    var assetObj = asset?.AsObject();
+                    if (assetObj is null) continue;
+
+                    var assetName = assetObj["name"]?.AsValue();
+                    if (assetName is null) continue;
+
+                    if (assetName.GetValue<string>() == INSTALLER_CONTENTS_FILE_NAME)
+                    {
+                        var assetDownloadUrl = assetObj["browser_download_url"]?.AsValue()?.GetValue<string>();
+                        if (assetDownloadUrl is null) continue;
+
+                        var assetBytes = await client.GetByteArrayAsync(assetDownloadUrl);
+                        var tempZipPath = Path.Combine(gangBeastsPath, INSTALLER_CONTENTS_FILE_NAME);
+                        await File.WriteAllBytesAsync(tempZipPath, assetBytes);
+
+                        ZipFile.ExtractToDirectory(tempZipPath, gangBeastsPath);
+                    }
+                }
                 client.Dispose();
-
-                GitTreeResponse json = JsonSerializer.Deserialize<GitTreeResponse>(response);
-                foreach (GitTreeElement element in json.tree)
-                {
-                    string path = Path.Combine(gangBeastsPath, basePath, element.path);
-                    string relativePath = Path.Combine(basePath, element.path);
-                    if (element.type == "tree")
-                    {
-                        if (!Directory.Exists(path))
-                            Directory.CreateDirectory(path);
-                        DownloadTree(element.url, gangBeastsPath, relativePath);
-                    }
-                    else
-                    {
-                        DownloadFile(path, BASE_DOWNLOAD_URL + relativePath);
-                    }
-                }
-
-                if (basePath == "")
-                {
-                    Invoke(new MethodInvoker(() => DownloadFinished()));
-                }
-            //}
-            //catch
-            /*{
-                Invoke(new MethodInvoker(delegate () {
-                    ChangeText(MSG_ERROR);
-                    retryButton.Visible = true;
-                }));
-            }*/
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Error downloading/installing Cement from latest release! {e}");
+                downloadTimer.Stop();
+                infoText.Text = MSG_ERROR + $" {e}";
+                infoText.ForeColor = Color.Red;
+                await Task.Delay(1000);
+                Application.Restart();
+            }
+            finally
+            {
+                client.Dispose();
+            }
         }
 
-        private void TryInstallLoader()
+        private async void TryInstallLoader()
         {
             try
             {
-
-
                 Process GangBeard = GetGangBeastsProcess();
                 if (GangBeard != null)
                 {
@@ -171,21 +153,19 @@ namespace CementInstaller
                     Console.WriteLine($"Found gang beard at {pathToGangBeard}");
                     infoText.Text = "Downloading";
                     downloadTimer.Enabled = true;
-                    new Thread(() => DownloadTree(REPO_API_LINK, pathToGangBeard)).Start();
+                    await DownloadLatestCementRelease(REPO_API_LINK, pathToGangBeard);
                 }
                 else
                 {
-                    ChangeText(MSG_GANG_BEASTS_NOT_OPEN);
+                    infoText.Text = MSG_GANG_BEASTS_NOT_OPEN;
                     retryButton.Visible = true;
                 }
 
             }
             catch
             {
-                Invoke(new MethodInvoker(delegate () {
-                    ChangeText("Installer failed. Try right clicking and running the .exe as an administrator.");
-                    retryButton.Visible = true;
-                }));
+                infoText.Text = "Installer failed. Try right clicking and running the .exe as an administrator.";
+                retryButton.Visible = true;
             }
         }
 
@@ -208,12 +188,12 @@ namespace CementInstaller
             TryInstallLoader();
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void Button1_Click(object sender, EventArgs e)
         {
             TryInstallLoader();
         }
 
-        private void downloadTimer_Tick(object sender, EventArgs e)
+        private void DownloadTimer_Tick(object sender, EventArgs e)
         {
             infoText.Text = "Downloading" + downloadDots;
 
@@ -224,24 +204,4 @@ namespace CementInstaller
             }
         }
     }
-}
-
-[System.Serializable]
-public class GitTreeResponse
-{
-    public string sha { get; set; }
-    public string url { get; set; }
-    public bool truncated { get; set; }
-    public GitTreeElement[] tree { get; set; }
-}
-
-[System.Serializable]
-public class GitTreeElement
-{
-    public string path { get; set; }
-    public string mode { get; set; }
-    public string type { get; set; }
-    public string sha { get; set; }
-    public string url { get; set; }
-    public int size { get; set; }
 }
