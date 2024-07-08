@@ -1,4 +1,6 @@
 ﻿
+using System;
+
 namespace CementInstaller
 {
     partial class MainForm
@@ -108,6 +110,11 @@ namespace CementInstaller
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
 
+        }
+
+        private void DownloadTimer_Tick(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion

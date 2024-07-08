@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Text;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
+using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -16,13 +19,11 @@ namespace CementInstaller
         public const string REPO_API_LINK = "https://api.github.com/repos/HueSamai/CementSource/releases/latest";
         public const string MSG_DONE = "Done downloading Cement! When you want to install an update, " +
                     "just run this application again. You can now close me, and reopen Gang Beasts.";
-        public const string MSG_ERROR = "Whoops! An error occurred while trying to download Cement.\nThis could be because you are not connected to the internet.";
+        public const string MSG_ERROR = "Whoops! An error occurred while trying to download Cement: ";
         public const string MSG_GANG_BEASTS_NOT_OPEN = "Please open Gang Beasts, then click the retry button.\nThe installer will automatically close it.";
         public const string INSTALLER_CONTENTS_FILE_NAME = "CementInstallerContents.zip";
 
-        string downloadDots = ".";
-
-        string pathToGangBeardExe;
+        private string pathToGangBeastsExe;
 
         public MainForm()
         {
@@ -41,7 +42,8 @@ namespace CementInstaller
 
             return null;
         }
-/*
+
+        [SupportedOSPlatform("Windows")]
         private void SetFont()
         {
             //https://stackoverflow.com/questions/1297264/using-custom-fonts-on-a-label-on-winforms
@@ -69,8 +71,8 @@ namespace CementInstaller
             retryButton.Font = new Font(pfc.Families[0], retryButton.Font.Size);
             retryButton.ForeColor = Color.FromArgb(203, 246, 255);
         }
-*/
-        private void SetValues()
+
+        private void SetColors()
         {
             BackColor = Color.FromArgb(146, 187, 228);
             pictureBox1.BackColor = Color.Transparent;
@@ -80,13 +82,11 @@ namespace CementInstaller
 
         private void DownloadFinished()
         {
-            //ChangeText(MSG_DONE);
-            Process.Start(pathToGangBeardExe);
+            Process.Start(pathToGangBeastsExe);
             Close();
-            downloadTimer.Enabled = false;
         }
 
-        private async Task DownloadLatestCementRelease(string url, string gangBeastsPath, string basePath = "")
+        private async Task DownloadLatestCementRelease(string url, string gangBeastsPath)
         {
             var client = new HttpClient();
             client.DefaultRequestHeaders.Add("User-Agent", "request");
@@ -99,15 +99,14 @@ namespace CementInstaller
                 Console.WriteLine(response);
 
                 var releaseResponseObj = JsonNode.Parse(response).AsObject();
-                var assetsArray = releaseResponseObj["assets"]?.AsArray();
-                if (assetsArray is null) throw new NullReferenceException("assetsArray was not found.");
+                var assetsArray = (releaseResponseObj["assets"]?.AsArray()) ?? throw new NullReferenceException("assetsArray was not found.");
                 foreach (var asset in assetsArray) 
                 {
                     var assetObj = asset?.AsObject();
                     if (assetObj is null) continue;
 
                     var assetName = assetObj["name"]?.AsValue();
-                    if (assetName is null) continue;
+                    if (assetName is null || string.IsNullOrWhiteSpace(assetName.GetValue<string>())) continue;
 
                     if (assetName.GetValue<string>() == INSTALLER_CONTENTS_FILE_NAME)
                     {
@@ -121,16 +120,14 @@ namespace CementInstaller
                         ZipFile.ExtractToDirectory(tempZipPath, gangBeastsPath);
                     }
                 }
-                client.Dispose();
             }
             catch (Exception e)
             {
                 Console.WriteLine($"Error downloading/installing Cement from latest release! {e}");
                 downloadTimer.Stop();
-                infoText.Text = MSG_ERROR + $" {e}";
+                infoText.Text = $"{MSG_ERROR}: {e.Message}";
                 infoText.ForeColor = Color.Red;
                 await Task.Delay(1000);
-                Application.Restart();
             }
             finally
             {
@@ -140,68 +137,53 @@ namespace CementInstaller
 
         private async void TryInstallLoader()
         {
-            try
+            Process gangBeastsProcess = GetGangBeastsProcess();
+            if (gangBeastsProcess != null)
             {
-                Process GangBeard = GetGangBeastsProcess();
-                if (GangBeard != null)
-                {
-                    retryButton.Visible = false;
-                    string pathToGangBeard = Path.Combine(GangBeard.MainModule.FileName, "..");
-                    pathToGangBeardExe = GangBeard.MainModule.FileName;
-                    GangBeard.Kill();
-                    GangBeard.Dispose();
-                    Console.WriteLine($"Found gang beard at {pathToGangBeard}");
-                    infoText.Text = "Downloading";
-                    downloadTimer.Enabled = true;
-                    await DownloadLatestCementRelease(REPO_API_LINK, pathToGangBeard);
-                }
-                else
-                {
-                    infoText.Text = MSG_GANG_BEASTS_NOT_OPEN;
-                    retryButton.Visible = true;
-                }
+                retryButton.Visible = false;
+                string pathToGangBeasts = Path.Combine(gangBeastsProcess.MainModule.FileName, "..");
+                pathToGangBeastsExe = gangBeastsProcess.MainModule.FileName;
+                gangBeastsProcess.Kill();
+                gangBeastsProcess.Dispose();
+                Console.WriteLine($"Found Gang Beasts at {pathToGangBeasts}");
+                infoText.Text = "Downloading";
+                downloadTimer.Enabled = true;
+                await DownloadLatestCementRelease(REPO_API_LINK, pathToGangBeasts);
+            }
+            else
+            {
+                infoText.Text = MSG_GANG_BEASTS_NOT_OPEN;
+            }
 
-            }
-            catch
-            {
-                infoText.Text = "Installer failed. Try right clicking and running the .exe as an administrator.";
-                retryButton.Visible = true;
-            }
+            retryButton.Visible = true;
         }
 
 
         private void Form1_Load(object sender, EventArgs e)
         {
             string[] args = Environment.GetCommandLineArgs();
-            if (args.Contains("--no-install"))
+            switch (args)
             {
-                Process GangBeard = GetGangBeastsProcess();
-                if (GangBeard != null)
-                {
-                    GangBeard.Kill();
-                    pathToGangBeardExe = GangBeard.MainModule.FileName;
-                    DownloadFinished();
-                    return;
-                }
+                case string[] arg1 when arg1.Contains("--no-install"):
+                    Process gangBeastsProcess = GetGangBeastsProcess();
+                    if (gangBeastsProcess != null)
+                    {
+                        gangBeastsProcess.Kill();
+                        pathToGangBeastsExe = gangBeastsProcess.MainModule.FileName;
+                        DownloadFinished();
+                        return;
+                    }
+                    break;
             }
-            SetValues();
+
+            SetColors();
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) SetFont();
             TryInstallLoader();
         }
 
         private void Button1_Click(object sender, EventArgs e)
         {
             TryInstallLoader();
-        }
-
-        private void DownloadTimer_Tick(object sender, EventArgs e)
-        {
-            infoText.Text = "Downloading" + downloadDots;
-
-            downloadDots += ".";
-            if (downloadDots.Length > 3)
-            {
-                downloadDots = ".";
-            }
         }
     }
 }

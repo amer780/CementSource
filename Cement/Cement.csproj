@@ -42,7 +42,6 @@
 
   <ItemGroup>
     <PackageReference Include="LavaGang.MelonLoader" Version="0.6.1"></PackageReference>
-    
     <Reference Include="ref\**\*.dll"></Reference>
     
     <!--
