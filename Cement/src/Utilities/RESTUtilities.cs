@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Nodes;
 
-namespace CementGB.Utilities;
+namespace CementGB.Mod.Utilities;
 
 public static class RESTUtilities
 {

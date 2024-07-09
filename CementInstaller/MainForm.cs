@@ -12,7 +12,7 @@ using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace CementInstaller
+namespace CementGB.Installer
 {
     public partial class MainForm : Form
     {

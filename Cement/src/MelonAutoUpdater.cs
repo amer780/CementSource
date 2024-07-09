@@ -1,4 +1,4 @@
-﻿using CementGB.Utilities;
+﻿using CementGB.Mod.Utilities;
 using MelonLoader;
 using MelonLoader.Utils;
 using System;
@@ -8,42 +8,32 @@ using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace CementGB;
+namespace CementGB.Mod;
 
-public class MelonAutoUpdater : IDisposable
+public static class MelonAutoUpdater
 {
-    private readonly MelonBase _melonToUpdate;
-    private readonly Uri? _melonReleaseUri;
-
-    public readonly bool _melonHasValidDownloadLink;
-    private bool _disposedValue;
-
-    public MelonAutoUpdater(MelonMod modToUpdate)
-    {
-        _melonToUpdate = modToUpdate;
-
-        _melonHasValidDownloadLink = Uri.TryCreate(_melonToUpdate.Info.DownloadLink, UriKind.Absolute, out _melonReleaseUri)
-            && _melonReleaseUri.Host.Contains("api.github.com");
-    }
-
-    public async Task UpdateItem()
+    public static async Task UpdateItem(MelonMod melonToUpdate)
     {
         if (Mod.OfflineMode) return;
+
+        var _melonHasValidDownloadLink = Uri.TryCreate(melonToUpdate.Info.DownloadLink, UriKind.Absolute, out var melonReleaseUri)
+            && melonReleaseUri.Host.Contains("api.github.com");
+
         if (!_melonHasValidDownloadLink)
         {
-            Melon<Mod>.Logger.Warning($"MelonLoader mod {_melonToUpdate} has an invalid or empty DownloadLink field. In order for auto-updating to work, the DownloadLink field must contain an API link to a GitHub release!");
+            Melon<Mod>.Logger.Warning($"MelonLoader mod {melonToUpdate} has an invalid or empty DownloadLink field. In order for auto-updating to work, the DownloadLink field must contain an API link to a GitHub release!");
             return;
         }
 
-        Melon<Mod>.Logger.Msg($"Attempting update check for Melon mod {_melonToUpdate.Info.Name}. . .");
+        Melon<Mod>.Logger.Msg($"Attempting update check for Melon mod {melonToUpdate.Info.Name}. . .");
 
-        var parsedLocalVersion = new Version(_melonToUpdate.Info.Version);
+        var parsedLocalVersion = new Version(melonToUpdate.Info.Version);
 
         try
         {
-            var releaseResponseBody = await Mod.updaterClient.GetStringAsync(_melonReleaseUri);
+            var releaseResponseBody = await Mod.updaterClient.GetStringAsync(melonReleaseUri);
             var releaseResponseObj = (JsonNode.Parse(releaseResponseBody)?.AsObject()) ?? throw new NullReferenceException("Response did not come back, or came back as a non-json value/null.");
-            Melon<Mod>.Logger.Msg($"Successfully parsed GitHub API release from mod download link ({_melonToUpdate.Info.DownloadLink}). Output: {releaseResponseBody}");
+            Melon<Mod>.Logger.Msg($"Successfully parsed GitHub API release from mod download link ({melonToUpdate.Info.DownloadLink}). Output: {releaseResponseBody}");
 
             if (releaseResponseObj.TryGetPropertyValueAs("message", out string? message) && message == "Not Found") throw new Exception("Response came back with 'Not Found' message. This likely means you have the right host name (https://api.github.com), but the repo you requested to doesn't exist or is private.");
 
@@ -58,7 +48,7 @@ public class MelonAutoUpdater : IDisposable
 
             if (releaseVersion <= parsedLocalVersion)
             {
-                Melon<Mod>.Logger.Msg($"Mod {_melonToUpdate.Info.Name} is up to date! No higher versioned releases found.");
+                Melon<Mod>.Logger.Msg($"Mod {melonToUpdate.Info.Name} is up to date! No higher versioned releases found.");
                 return;
             }
 
@@ -107,38 +97,16 @@ public class MelonAutoUpdater : IDisposable
                 }
             }
 
-            Melon<Mod>.Logger.Msg($"Successfully downloaded assets from mod release link ({_melonToUpdate.Info.DownloadLink}). Output files stored in {outputPath}");
+            Melon<Mod>.Logger.Msg($"Successfully downloaded assets from mod release link ({melonToUpdate.Info.DownloadLink}). Output files stored in {outputPath}");
         }
         catch (Exception ex)
         {
-            Melon<Mod>.Logger.Error($"An error occured downloading update for mod {_melonToUpdate.Info.Name} from GitHub Releases. Update will not continue. Download link: {_melonToUpdate.Info.DownloadLink} Error: ", ex);
+            Melon<Mod>.Logger.Error($"An error occured downloading update for mod {melonToUpdate.Info.Name} from GitHub Releases. Update will not continue. Download link: {melonToUpdate.Info.DownloadLink} Error: ", ex);
         }
 
         // Restart game
         Melon<Mod>.Logger.Msg("mod updates were made, rebooting game. . .");
         Application.Quit();
         Process.Start(MelonEnvironment.GameExecutablePath);
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (!_disposedValue)
-        {
-            if (disposing)
-            {
-                // TODO: dispose managed state (managed objects)
-
-            }
-
-            // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-            // TODO: set large fields to null
-            _disposedValue = true;
-        }
-    }
-
-    public void Dispose()
-    {
-        Dispose(disposing: true);
-        GC.SuppressFinalize(this);
     }
 }

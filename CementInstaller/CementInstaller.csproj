@@ -2,11 +2,13 @@
   <PropertyGroup>
     <TargetFramework>net6.0-windows</TargetFramework>
     <OutputType>WinExe</OutputType>
+    
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>true</SelfContained>
+    
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <UseWindowsForms>true</UseWindowsForms>
-    <PlatformTarget>x64</PlatformTarget>
+    <RootNamespace>CementGB.Installer</RootNamespace>
   </PropertyGroup>
   
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">

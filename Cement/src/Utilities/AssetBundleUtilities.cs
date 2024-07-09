@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
-namespace CementGB.Utilities;
+namespace CementGB.Mod.Utilities;
 
 public static class AssetBundleUtilities
 {

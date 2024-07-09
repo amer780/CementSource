@@ -1,7 +1,7 @@
-﻿using CementGB;
+﻿using CementGB.Mod;
 using MelonLoader;
 using System.Reflection;
-using BuildInfo = CementGB.BuildInfo;
+using BuildInfo = CementGB.Mod.BuildInfo;
 
 [assembly: AssemblyTitle(BuildInfo.Description)]
 [assembly: AssemblyDescription(BuildInfo.Description)]
@@ -11,8 +11,6 @@ using BuildInfo = CementGB.BuildInfo;
 [assembly: AssemblyTrademark(BuildInfo.Company)]
 [assembly: AssemblyVersion(BuildInfo.Version)]
 [assembly: AssemblyFileVersion(BuildInfo.Version)]
-
-[assembly: HarmonyDontPatchAll]
 
 [assembly: MelonInfo(typeof(Mod), BuildInfo.Name, BuildInfo.Version, BuildInfo.Author, BuildInfo.DownloadLink)]
 [assembly: MelonColor(121, 206, 212, 84)]

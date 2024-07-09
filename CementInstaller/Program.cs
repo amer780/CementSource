@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace CementInstaller
+namespace CementGB.Installer
 {
     static class Program
     {

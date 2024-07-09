@@ -1,0 +1,61 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+
+    <RootNamespace>CementGB.Mod</RootNamespace>
+    <TargetFramework>net6.0</TargetFramework>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+
+    <Nullable>enable</Nullable>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+
+    <ErrorReport>prompt</ErrorReport>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <Optimize>false</Optimize>
+    
+    <OutputPath>bin\Debug\</OutputPath>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>pdbonly</DebugType>
+    
+    <ErrorReport>prompt</ErrorReport>
+    <DefineConstants>RELEASE;TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+
+    <OutputPath>bin\Release\</OutputPath>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="ref\**\*.dll"></Reference>
+    
+    <!--
+      Removing redundant references
+    -->
+    <Reference Remove="ref\**\System.*.dll"></Reference>
+    <Reference Remove="ref\**\Microsoft.Win32.SystemEvents.dll"></Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <GameDirFile Include="game_dir.txt"></GameDirFile>
+  </ItemGroup>
+  
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <ReadLinesFromFile File="@(GameDirFile)">
+      <Output TaskParameter="Lines" PropertyName="GameDir" />
+    </ReadLinesFromFile>
+
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(GameDir)\Mods" />
+  </Target>
+</Project>

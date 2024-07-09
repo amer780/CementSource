@@ -1,7 +1,8 @@
 ﻿using MelonLoader;
+using System;
 using UnityEngine;
 
-namespace CementGB.Utilities;
+namespace CementGB.Mod.Utilities;
 
 [RegisterTypeInIl2Cpp]
 public class GameObjectUtilities : MonoBehaviour

@@ -3,14 +3,11 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
 
-    <RootNamespace>CementGB</RootNamespace>
+    <RootNamespace>CementGB.Plugin</RootNamespace>
     <TargetFramework>net6.0</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 
-    <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <Nullable>enable</Nullable>
-    <LangVersion>10</LangVersion>
-
     <OutputType>Library</OutputType>
   </PropertyGroup>
 
@@ -22,7 +19,7 @@
     <ErrorReport>prompt</ErrorReport>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <Optimize>false</Optimize>
-    
+
     <OutputPath>bin\Debug\</OutputPath>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -31,7 +28,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>false</DebugSymbols>
     <DebugType>pdbonly</DebugType>
-    
+
     <ErrorReport>prompt</ErrorReport>
     <DefineConstants>RELEASE;TRACE</DefineConstants>
     <Optimize>true</Optimize>
@@ -41,25 +38,23 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="LavaGang.MelonLoader" Version="0.6.1"></PackageReference>
+    <PackageReference Include="LavaGang.MelonLoader" Version="0.6.4" />
     <Reference Include="ref\**\*.dll"></Reference>
-    
+
     <!--
       Removing redundant references
     -->
-    <Reference Remove="ref\**\System.*.dll"></Reference>
-    <Reference Remove="ref\**\Microsoft.Win32.SystemEvents.dll"></Reference>
   </ItemGroup>
 
   <ItemGroup>
     <GameDirFile Include="game_dir.txt"></GameDirFile>
   </ItemGroup>
-  
+
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <ReadLinesFromFile File="@(GameDirFile)">
-      <Output TaskParameter="Lines" ItemName="GameDir" />
+      <Output TaskParameter="Lines" PropertyName="GameDir" />
     </ReadLinesFromFile>
 
-    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(GameDir)\Mods" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(GameDir)\Plugins" />
   </Target>
 </Project>

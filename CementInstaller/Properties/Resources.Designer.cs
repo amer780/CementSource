@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace CementInstaller.Properties {
+namespace CementGB.Installer.Properties {
     using System;
     
     

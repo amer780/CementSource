@@ -1,7 +1,6 @@
-﻿
-using System;
+﻿using System;
 
-namespace CementInstaller
+namespace CementGB.Installer
 {
     partial class MainForm
     {
@@ -79,7 +78,7 @@ namespace CementInstaller
             // pictureBox1
             // 
             this.pictureBox1.BackColor = System.Drawing.Color.Transparent;
-            this.pictureBox1.Image = global::CementInstaller.Properties.Resources.cement_logo_alpha;
+            this.pictureBox1.Image = global::CementGB.Installer.Properties.Resources.cement_logo_alpha;
             this.pictureBox1.Location = new System.Drawing.Point(188, 14);
             this.pictureBox1.Margin = new System.Windows.Forms.Padding(4);
             this.pictureBox1.Name = "pictureBox1";
@@ -93,7 +92,7 @@ namespace CementInstaller
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.CadetBlue;
-            this.BackgroundImage = global::CementInstaller.Properties.Resources.cement_background;
+            this.BackgroundImage = global::CementGB.Installer.Properties.Resources.cement_background;
             this.ClientSize = new System.Drawing.Size(584, 416);
             this.Controls.Add(this.retryButton);
             this.Controls.Add(this.infoText);
