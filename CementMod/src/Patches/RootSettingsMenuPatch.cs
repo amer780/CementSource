@@ -1,7 +1,5 @@
 ﻿using HarmonyLib;
-using Il2CppGB.UI;
 using Il2CppGB.UI.Utils.Settings;
-using Il2CppInterop.Runtime;
 using Il2CppTMPro;
 using UnityEngine;
 using UnityEngine.Localization.Components;
@@ -28,17 +26,16 @@ public static class RootSettingsMenuPatch
 
             cementButton.name = "CementMenuButton";
             cementButton.GetComponent<TextMeshProUGUI>().text = "Cement";
-            cementButton.transform.localPosition += Vector3.down;
 
             Object.Destroy(cementButton.GetComponent<LocalizeStringEvent>());
-            Object.Destroy(cementButton.GetComponent<ButtonNavHandler>());
 
             // Remove click events
-            var cementButtonComp = (Button)cementButton.GetComponent(Il2CppType.Of<Button>());
-
-            cementButtonComp.onClick.RemoveAllListeners();
+            var cementButtonComp = cementButton.GetComponent<Button>();
+            cementButtonComp.onClick = new Button.ButtonClickedEvent();
 
             // TODO: add custom events for in-game menu
+
+            cementButton.transform.position = new Vector3(8.85f, -3.2669f, -0.11f);
         }
     }
 }

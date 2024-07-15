@@ -39,15 +39,13 @@
 
   <ItemGroup>
     <PackageReference Include="LavaGang.MelonLoader" Version="0.6.4" />
-    <Reference Include="ref\**\*.dll"></Reference>
+    <PackageReference Include="Mono.Cecil" Version="0.11.5" />
 
-    <!--
-      Removing redundant references
-    -->
+    <Reference Include="ref\**\*.dll"></Reference>
   </ItemGroup>
 
   <ItemGroup>
-    <GameDirFile Include="game_dir.txt"></GameDirFile>
+    <GameDirFile Include="..\game_dir.txt"></GameDirFile>
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">

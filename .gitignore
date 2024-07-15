@@ -398,5 +398,7 @@ FodyWeavers.xsd
 *.sln.iml
 
 # Cement-specific gitignore stuff
-ref/IL2CppAssemblies/*
-ref/net6/*
+**/ref/IL2CppAssemblies/*
+**/ref/net6/*
+Staging/
+game_dir.txt

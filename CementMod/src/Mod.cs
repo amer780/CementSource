@@ -26,30 +26,6 @@ public class Mod : MelonMod
     private static readonly MelonPreferences_Category _melonCat = MelonPreferences.CreateCategory("cement_prefs", "CementGB");
     private static readonly MelonPreferences_Entry _offlineModePref = _melonCat.CreateEntry(nameof(_offlineModePref), false);
 
-    /*
-    public override void OnPreInitialization()
-    {
-        base.OnPreInitialization();
-
-        Directory.CreateDirectory(userDataPath);
-        Directory.CreateDirectory(cementBinPath);
-
-        updaterClient.DefaultRequestHeaders.Add("User-Agent", "request");
-    }
-
-    public override void OnPreModsLoaded()
-    {
-        base.OnPreModsLoaded();
-
-        // TODO: Check for mod updates
-    }
-
-    public override void OnApplicationStarted()
-    {
-        base.OnApplicationStarted();
-    }
-    */
-
     public override void OnInitializeMelon()
     {
         base.OnInitializeMelon();
