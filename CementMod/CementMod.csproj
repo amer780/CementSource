@@ -9,6 +9,7 @@
 
     <Nullable>enable</Nullable>
     <OutputType>Library</OutputType>
+    <DefineConstants>MELONLOADER</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -36,6 +37,10 @@
     <OutputPath>bin\Release\</OutputPath>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\**\*" />
+  </ItemGroup>
 
   <ItemGroup>
     <Reference Include="ref\**\*.dll"></Reference>

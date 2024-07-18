@@ -1,5 +1,4 @@
 ﻿using CementGB.Mod.Utilities;
-using Il2CppInterop.Runtime;
 using MelonLoader;
 using MelonLoader.Utils;
 using System.IO;
@@ -22,6 +21,7 @@ public class Mod : MelonMod
     public static readonly string userDataPath = Path.Combine(MelonEnvironment.UserDataDirectory, "CementGB");
 
     internal static GameObject? cementCompContainer;
+    internal static AssetBundle? cementAssetBundle;
 
     private static readonly MelonPreferences_Category _melonCat = MelonPreferences.CreateCategory("cement_prefs", "CementGB");
     private static readonly MelonPreferences_Entry _offlineModePref = _melonCat.CreateEntry(nameof(_offlineModePref), false);
@@ -30,10 +30,15 @@ public class Mod : MelonMod
     {
         base.OnInitializeMelon();
 
+        FileStructure();
+        cementAssetBundle = AssetBundleUtilities.LoadEmbeddedAssetBundle(MelonAssembly.Assembly, "CementMod.Assets.cement.bundle");
+        CreateCementComponents();
+    }
+
+    private static void FileStructure()
+    {
         Directory.CreateDirectory(userDataPath);
         _melonCat.SetFilePath(Path.Combine(userDataPath, "CementPrefs.cfg"));
-
-        CreateCementComponents();
     }
 
     private static void CreateCementComponents()
@@ -45,6 +50,5 @@ public class Mod : MelonMod
         cementCompContainer.hideFlags = HideFlags.DontUnloadUnusedAsset;
 
         // Attach Cement MonoBehaviours
-        cementCompContainer.AddComponent(Il2CppType.Of<GameObjectUtilities>());
     }
 }

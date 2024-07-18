@@ -36,7 +36,7 @@ public static class AssetBundleUtilities
         }));
     }
 
-    internal static AssetBundle? LoadEmbeddedAssetBundle(Assembly assembly, string name)
+    public static AssetBundle? LoadEmbeddedAssetBundle(Assembly assembly, string name)
     {
         string[] manifestResources = assembly.GetManifestResourceNames();
         AssetBundle? bundle = null;
@@ -44,10 +44,10 @@ public static class AssetBundleUtilities
         {
             Melon<Mod>.Logger.Msg($"Loading embedded resource data {name}...");
             using var str = assembly.GetManifestResourceStream(name);
-            if (str is null) 
+            if (str is null)
             {
                 Melon<Mod>.Logger.Warning($"Manifest resource returned null stream. How did this happen?");
-                return null; 
+                return null;
             }
 
             using var memoryStream = new MemoryStream();

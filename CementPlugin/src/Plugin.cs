@@ -84,11 +84,14 @@ public class Plugin : MelonPlugin
 
                 if (remoteVersion < localVersionObj) continue;
 
+                // TODO: Ask user if they want to update mod
+
                 var assetsObj = contentJson["assets"]?.AsArray() ?? throw new Exception("Latest release has no assets!");
                 foreach (var asset in assetsObj)
                 {
                     if (asset is null) continue;
                     var assetName = asset["name"]?.AsValue()?.GetValue<string>();
+
                     if (string.IsNullOrWhiteSpace(assetName)) continue;
                     if (!assetName.EndsWith(".dll")) continue;
 
