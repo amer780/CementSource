@@ -95,7 +95,7 @@ public class Plugin : MelonPlugin
                     if (string.IsNullOrWhiteSpace(assetName)) continue;
                     if (!assetName.EndsWith(".dll")) continue;
 
-
+                    // TODO: Download assembly and restart game
                 }
             }
             catch (Exception e)
