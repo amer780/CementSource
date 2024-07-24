@@ -1,0 +1,19 @@
+void CreateCustomScene()
+{
+	// this is just loading an asset bundle and has nothing to do with the SceneModule. Check see also
+	AssetBundle exampleBundle = AssetBundle.LoadFromFile(Path.Combine(modDirectoryPath, "example"));
+	GameObject sceneObject = exampleBundle.LoadAsset<GameObject>();
+	
+	// when we construct a new CustomScene, it gets automatically configured with the CustomSceneManager
+	new CustomScene("Example Map")
+		.AddObject(sceneObject)
+		.InvokeOnLoad(OnLoad)
+
+	CustomSceneManager.LoadScene("Example Map");
+}
+
+void OnLoad()
+{
+	// do map loaded logic here
+	Cement.Log("Map loaded!");
+}
